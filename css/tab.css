@@ -1,0 +1,218 @@
+/* tab.css — shared skeleton for all 4 planet tab pages.
+
+   IMPORTANT: the pixel coordinates below must stay in sync with the
+   CLUSTER constant in transition.js — that's what determines where the
+   home page's cluster-collapse animation lands. If you move one, move
+   the other to match:
+     home: cx 32  cy 36  size 64
+     tr:   cx 208 cy 36  size 64
+     bl:   cx 34  cy 180 size 64
+     br:   cx 206 cy 180 size 64
+     big:  cx 120 cy 108 size 160
+*/
+
+* , *::before, *::after { box-sizing: border-box; }
+
+.tab-body {
+  margin: 0;
+  min-height: 100vh;
+  background: #05060c;
+  color: #e8e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.tab-header {
+  position: relative;
+  height: 236px;
+}
+
+/* ── Nav cluster: Home + 3 mini planets + 1 big current planet ── */
+.nav-cluster {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 236px;
+}
+
+.cluster-node {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: #e8e8f0;
+  font-size: 10px;
+  line-height: 1.2;
+  padding: 2px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+.cluster-node:hover {
+  transform: scale(1.06);
+}
+
+.cluster-mini {
+  width: 64px;
+  height: 64px;
+}
+
+.cluster-planet-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+/* explicit 200x200 sizing (rather than auto-sizing to just the base
+   orb) is what actually centers correctly — the ring/satellite/probe
+   overflow their own element via absolute positioning and don't count
+   toward auto width/height, so without this the whole assembly was
+   centering on the narrower orb box instead of its true visual bounds */
+/* Scale values are divided by 0.85 (0.28/0.85, 0.68/0.85) to compensate
+   for the home page's planet/sun elements now being 0.85x their
+   original native size (see css/saturn.css, mars.css, abyss.css,
+   nexus.css, planet_base.css) — keeps these cluster icons rendering at
+   the exact same final pixel size as before that change. */
+.cluster-mini .cluster-planet-wrap { transform: translate(-50%, -50%) scale(0.3294); }
+.cluster-big .cluster-planet-wrap { transform: translate(-50%, -50%) scale(0.8); }
+
+/* home: cx 32 cy 36 — box widened to 84px (from the standard 64px
+   every other cluster icon uses) so .sun-flare (css/sun.css) has a
+   little room to fade out before this box's overflow:hidden clips it;
+   at 64px there was no margin at all past the sun disk's own edge, so
+   any glow got cut off flush against it. Recentered on the same cx/cy
+   (left = 32-42, top = 36-42) so the icon itself doesn't shift. */
+.cluster-home {
+  width: 84px;
+  height: 84px;
+  left: -10px;
+  top: -6px;
+  z-index: 3;
+}
+.cluster-home .cluster-planet-wrap {
+  /* sun-orb is 238px native (was 280px — see css/sun.css, now 0.85x).
+     0.2706 = 0.23/0.85, so this still matches CLUSTER.home.scale in
+     transition.js exactly and lands at the same 64px final size as
+     before that change — the animated sun shrinking during the
+     collapse and this landed canvas remain the same render at the
+     same final scale. */
+  transform: translate(-50%, -50%) scale(0.2706);
+}
+
+/* tr: cx 208 cy 36 size 64 -> left = 208-32, top = 36-32 */
+.cluster-tr { left: 176px; top: 4px; z-index: 2; }
+
+/* bl: cx 34 cy 180 size 64 -> left = 34-32, top = 180-32 */
+.cluster-bl { left: 2px; top: 148px; z-index: 2; }
+
+/* br: cx 206 cy 180 size 64 -> left = 206-32, top = 180-32 */
+.cluster-br { left: 174px; top: 148px; z-index: 2; }
+
+/* big: cx 120 cy 108 size 160 -> left = 120-80, top = 108-80 */
+.cluster-big {
+  left: 40px;
+  top: 28px;
+  width: 160px;
+  height: 160px;
+  z-index: 1;
+  cursor: default;
+}
+.cluster-big:hover { transform: none; }
+
+/* ── Header bar + log button (empty placeholders for now) ── */
+.tab-header-bar {
+  position: absolute;
+  left: 272px;
+  right: 96px;
+  top: 6px;
+  height: 222px;
+  /* no border/box for now, per request — just the planet cluster matters
+     right now. Restyle once header content is decided. */
+}
+
+.log-btn {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 80px;
+  height: 222px;
+  border: none;
+  background: transparent;
+  color: transparent;
+  cursor: not-allowed;
+}
+
+/* ── Main content placeholder ── */
+.tab-content {
+  margin: 20px;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  padding: 32px;
+}
+
+.tab-placeholder-text {
+  font-size: 18px;
+  color: #cbd5e1;
+  max-width: 640px;
+  margin: 0;
+}
+
+/* ── Scroll buttons ────────────────────────────────────────────────
+   .scroll-nav: one circular down-arrow beside the Log button in the shared
+   header (vertically centred on the Log button's visual, same right-hand
+   anchor as the Log button so it lines up on every tab).
+   .log-scroll-row: one circular up-arrow right-aligned directly above each
+   tab's Activity Log panel. */
+.scroll-nav { position: absolute; right: 100px; top: 97px; z-index: 5; }
+.scroll-circle-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0;
+  border-radius: 50%; cursor: pointer;
+  /* Same look as the tab's own Log button: its dark radial background, 1.5px accent border, glow and icon
+     colour. The accent is set per tab just below (--sc-*); neutral values are the fallback. */
+  color: var(--sc-icon, #dfe5f5);
+  background: var(--sc-bg, rgba(255,255,255,0.07));
+  border: 1.5px solid var(--sc-border, rgba(255,255,255,0.22));
+  box-shadow: 0 0 16px var(--sc-glow, rgba(255,255,255,0.1));
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease, opacity 0.18s ease;
+}
+.scroll-circle-btn svg { filter: drop-shadow(0 0 5px var(--sc-icon-glow, transparent)); }
+.scroll-circle-btn:hover { border-color: var(--sc-border-hover, rgba(255,255,255,0.45)); box-shadow: 0 0 22px var(--sc-glow-hover, rgba(255,255,255,0.2)); transform: translateY(-1px); }
+
+/* Per-tab accent = that tab's Log button colours (see each tab's *-log-visual / *-log-icon rule). */
+.tab-body[data-current-planet="job-odyssey"] {
+  --sc-bg: radial-gradient(120% 100% at 50% 20%, #241c0a 0%, #0d0a03 75%); --sc-border: rgba(232,185,35,0.5); --sc-border-hover: rgba(232,185,35,0.75);
+  --sc-glow: rgba(232,185,35,0.18); --sc-glow-hover: rgba(232,185,35,0.32); --sc-icon: #ffd98a; --sc-icon-glow: rgba(232,185,35,0.5);
+}
+.tab-body[data-current-planet="career-voyager"] {
+  --sc-bg: radial-gradient(120% 100% at 50% 20%, #2a1610 0%, #130706 75%); --sc-border: rgba(255,120,70,0.5); --sc-border-hover: rgba(255,130,80,0.75);
+  --sc-glow: rgba(255,90,40,0.2); --sc-glow-hover: rgba(255,90,40,0.35); --sc-icon: #ff9d70; --sc-icon-glow: rgba(255,110,60,0.55);
+}
+.tab-body[data-current-planet="profile-nexus"] {
+  --sc-bg: radial-gradient(120% 100% at 50% 20%, #1c1e22 0%, #08090a 75%); --sc-border: rgba(255,255,255,0.4); --sc-border-hover: rgba(255,255,255,0.65);
+  --sc-glow: rgba(255,255,255,0.15); --sc-glow-hover: rgba(255,255,255,0.28); --sc-icon: var(--pnx-silver, #c9ccd3); --sc-icon-glow: rgba(255,255,255,0.4);
+}
+.tab-body[data-current-planet="scraper-abyss"] {
+  --sc-bg: radial-gradient(120% 100% at 50% 20%, #0a1c28 0%, #04080d 75%); --sc-border: rgba(32,146,229,0.5); --sc-border-hover: rgba(32,146,229,0.75);
+  --sc-glow: rgba(32,146,229,0.18); --sc-glow-hover: rgba(32,146,229,0.32); --sc-icon: #4aa8ee; --sc-icon-glow: rgba(32,146,229,0.5);
+}
+.log-scroll-row { display: flex; justify-content: flex-end; margin: 20px 0 14px; }
+/* The row supplies the gap above the panel, so the panel's own top margin
+   (0 on Job Odyssey/Career Voyager - which made the button touch the panel -
+   and 20-28px on the other two) must not add to it. */
+.log-scroll-row + [id$="-log-panel"] { margin-top: 0; }
+
+/* ── During a page transition (planet to planet, home to planet, planet to
+   home): transition.js puts .solaris-transitioning on <body> from the first
+   click until the new page is in. Scrolling is locked and the scroll buttons
+   are hidden (and unclickable) for that whole stretch. */
+body.solaris-transitioning { overflow: hidden; }
+body.solaris-transitioning .scroll-nav,
+body.solaris-transitioning .log-scroll-row { opacity: 0; visibility: hidden; pointer-events: none; }

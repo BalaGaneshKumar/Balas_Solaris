@@ -1,0 +1,51 @@
+/* Profile Nexus — silverish-white glowing rocky planet with twinkling sparkles */
+.planet-gold {
+  background: #b7c0cc; /* fallback base tone; JS overrides with canvas texture */
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset -14px -9px 24px rgba(0,0,0,0.4),
+              0 0 37px rgba(224, 230, 245, 0.65),
+              0 0 66px rgba(190, 200, 230, 0.35);
+}
+.planet-gold::after {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 8%, transparent 22%),
+    radial-gradient(circle at 50% 50%, transparent 44%, rgba(20,25,35,0.18) 68%, rgba(10,14,22,0.45) 88%, rgba(5,8,14,0.65) 100%),
+    radial-gradient(circle at 75% 78%, rgba(10,14,22,0.4) 0%, transparent 40%);
+}
+.planet-gold .twinkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #ffffff 0%, #ffffff 30%, rgba(255,255,255,0.75) 50%, rgba(255,255,255,0.2) 75%);
+  clip-path: polygon(
+    50% 0%, 53.83% 40.76%, 72.63% 27.37%, 59.24% 46.17%,
+    100% 50%, 59.24% 53.83%, 72.63% 72.63%, 53.83% 59.24%,
+    50% 100%, 46.17% 59.24%, 27.37% 72.63%, 40.76% 53.83%,
+    0% 50%, 40.76% 46.17%, 27.37% 27.37%, 46.17% 40.76%
+  );
+  z-index: 3;
+  pointer-events: none;
+}
+.planet-gold .twinkle::before {
+  /* tiny hard pinpoint core for a crisp center */
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5px;
+  height: 1.5px;
+  margin: -0.75px 0 0 -0.75px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 1.7px 0.4px rgba(255,255,255,0.9);
+}
+.planet-gold .twinkle:nth-child(1) { top: 22%; left: 28%; --base-scale: 0.9; }
+.planet-gold .twinkle:nth-child(2) { top: 38%; left: 72%; --base-scale: 0.6; }
+.planet-gold .twinkle:nth-child(3) { top: 68%; left: 55%; --base-scale: 1; }
+.planet-gold .twinkle:nth-child(4) { top: 75%; left: 30%; --base-scale: 0.65; }
+.planet-gold .twinkle:nth-child(5) { top: 15%; left: 55%; --base-scale: 0.6; }
+.planet-gold .twinkle:nth-child(6) { top: 55%; left: 18%; --base-scale: 0.75; }
+.planet-gold .twinkle:nth-child(7) { top: 82%; left: 62%; --base-scale: 0.6; }
+.planet-gold .twinkle:nth-child(8) { top: 48%; left: 42%; --base-scale: 0.75; }
+

@@ -1,0 +1,37 @@
+/* ─── Planet orbs: shared base used on EVERY page (home + all tabs) ──
+   Realistic-texture sphere shading, each planet spins on its own axis.
+   Individual planets' own colors/textures are set via JS
+   (see js/saturn.js, js/mars.js, js/abyss.js, js/nexus.js). ── */
+.planet-orb {
+  position: relative;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  box-shadow: inset -14px -9px 24px rgba(0,0,0,0.55),
+              0 0 20px rgba(0,0,0,0.35);
+}
+
+/* shared specular highlight + rim darkening for a convincing sphere read */
+.planet-orb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.2) 6%, transparent 16%),
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,0.25) 68%, rgba(0,0,0,0.6) 88%, rgba(0,0,0,0.85) 100%),
+    radial-gradient(circle at 75% 78%, rgba(0,0,0,0.5) 0%, transparent 40%);
+}
+
+.planet-orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+@keyframes spin-axis {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

@@ -1,0 +1,473 @@
+/* career_voyager_ui.css — Career Voyager tab page: header-bar content
+   (title + description + tabs), the log button + activity log panel,
+   and the Applications / Job Sites dashboard (stats, tables, modals).
+
+   Fills the two placeholders left empty in tab.html/tab.css
+   (.tab-header-bar, .log-btn — see the comments there) plus the
+   .tab-content area, but ONLY for this tab: everything here is scoped
+   under .tab-body[data-current-planet="career-voyager"] so it never
+   affects the other 3 tab pages, which share the same tab.html/tab.css
+   skeleton. Injected server-side via the cv_header()/cv_log()/cv_content()
+   macros in fragments/career_voyager.html; behavior wired up by
+   js/career_voyager_ui.js.
+
+   Namespaced --cv-* custom properties on purpose, so nothing here
+   collides with --space-bg/--text-primary/etc. (base.css) or --pnx-*
+   (profile_nexus_ui.css). */
+
+.tab-body[data-current-planet="career-voyager"] {
+  --cv-panel: rgba(255,255,255,0.05);
+  --cv-border: rgba(255,255,255,0.12);
+  --cv-text: #eef1fa;
+  --cv-text-dim: #9aa3bd;
+  --cv-orange: #ff9d42;
+  --cv-blue: #4ab8ff;
+  --cv-red: #ff5f6d;
+  --cv-green: #4fe3a1;
+  --cv-purple: #b98cff;
+  --cv-gray: #8a90a6;
+}
+/* Scrollbar color scoped to body, not .tab-body — <body> is the actual
+   scroll container (see base.css) and is an ANCESTOR of .tab-body, so
+   a variable set only there can't reach body's own scrollbar. */
+body[data-page-key="career-voyager"] {
+  --scroll-thumb: #ff9d70;
+  --scroll-thumb-hover: #ffb794;
+}
+
+/* ── Header bar: title + description + tabs ── */
+.tab-body[data-current-planet="career-voyager"] .tab-header-bar {
+  left: 208px; /* matches Profile Nexus override — pulled closer to the cluster (cluster-big ends at 200px) */
+  right: 260px; /* narrower box so the log button (also pulled left below) sits right after it */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cv-header-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+.cv-title { font-size: 22px; font-weight: 700; letter-spacing: .3px; color: var(--cv-text); font-family: 'Segoe UI', system-ui, sans-serif; }
+.cv-sub { font-size: 12.5px; color: var(--cv-text-dim); max-width: 440px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+.cv-tabs {
+  display: inline-flex; gap: 8px; margin-top: 6px;
+  padding: 5px; width: fit-content;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 26px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.cv-tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 15px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: #94a3b8;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; outline: none;
+  transition: all .2s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.cv-tab:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); }
+.cv-tab-icon { width: 14px; height: 14px; stroke: #94a3b8; transition: stroke .2s ease; }
+.cv-tab.cv-active-amber {
+  background: linear-gradient(180deg, rgba(245,158,11,0.15) 0%, rgba(180,83,9,0.1) 100%);
+  border-color: rgba(245,158,11,0.6); color: #fef3c7;
+  box-shadow: 0 0 14px rgba(245,158,11,0.2);
+}
+.cv-tab.cv-active-amber .cv-tab-icon { stroke: #fbbf24; }
+.cv-tab.cv-active-cyan {
+  background: linear-gradient(180deg, rgba(6,182,212,0.15) 0%, rgba(14,116,144,0.1) 100%);
+  border-color: rgba(6,182,212,0.6); color: #e0f2fe;
+  box-shadow: 0 0 14px rgba(6,182,212,0.25);
+}
+.cv-tab.cv-active-cyan .cv-tab-icon { stroke: #38bdf8; }
+
+/* ── Log button (fills the shared .log-btn placeholder) ──
+   Reverted to the original SVG document-icon design (career_voyager_v23.html
+   preview), per explicit request — not the folded-doc/dots icon used
+   on Profile Nexus. */
+.tab-body[data-current-planet="career-voyager"] .log-btn {
+  right: 160px; /* matches Profile Nexus override — pulled left, right after the header bar */
+  color: initial;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cv-log-visual {
+  position: relative;
+  width: 64px; height: 78px;
+  background: radial-gradient(120% 100% at 50% 20%, #2a1610 0%, #130706 75%);
+  border: 1.5px solid rgba(255,120,70,0.5);
+  border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 16px rgba(255,90,40,0.2), inset 0 0 10px rgba(255,90,40,0.08);
+  transition: box-shadow .18s, border-color .18s, transform .1s;
+}
+.tab-body[data-current-planet="career-voyager"] .log-btn:hover .cv-log-visual {
+  box-shadow: 0 0 22px rgba(255,90,40,0.35), inset 0 0 12px rgba(255,90,40,0.12);
+  border-color: rgba(255,130,80,0.75);
+  transform: translateY(-1px);
+}
+.log-btn.cv-open .cv-log-visual {
+  border-color: #ff8a52;
+  box-shadow: 0 0 26px rgba(255,110,60,0.55), inset 0 0 14px rgba(255,90,40,0.16);
+}
+.cv-log-icon { width: 26px; height: 26px; color: #ff9d70; filter: drop-shadow(0 0 5px rgba(255,110,60,0.55)); }
+.cv-log-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #ffd9c2; }
+.cv-log-count {
+  position: absolute; top: -7px; right: -7px;
+  background: var(--cv-red); color: #fff; font-size: 10px; font-weight: 700;
+  min-width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #05060c; z-index: 2;
+}
+.cv-log-count[data-empty="1"] { display: none; }
+
+/* ── Content area ── */
+.tab-body[data-current-planet="career-voyager"] .tab-content {
+  display: block;
+  align-items: initial;
+  margin-top: -20px;
+  padding: 0 24px 48px;
+}
+.cv-wrap { max-width: 1400px; margin: 0 auto; }
+
+/* ── Stats — ported from career_voyager_v23.html, values now computed
+   live from cvApps in career_voyager_ui.js (see cvUpdateStats). Only
+   plain counts + icons are kept — sparkline/bar-chart/donut visuals
+   were removed. ── */
+.cv-stats { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; margin-bottom: 20px; }
+
+.cv-stat {
+  position: relative;
+  background: linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid var(--cv-border);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 14px 12px;
+  height: 84px;
+  display: flex; align-items: center; justify-content: space-between;
+  overflow: hidden;
+}
+.cv-stat-text { display: flex; flex-direction: column; }
+/* Icon fills whatever space is left on the right, sized to match the
+   number's own font-size (24px) instead of a small fixed glyph. */
+.cv-stat-icon { flex-shrink: 0; width: 24px; height: 24px; opacity: .9; }
+.cv-stat.cv-offer { flex-direction: column; justify-content: center; }
+.cv-stat.cv-offer .cv-stat-icon { width: 16px; height: 16px; }
+.cv-stat .cv-num { font-size: 24px; font-weight: 700; line-height: 1; }
+.cv-stat .cv-lbl { font-size: 9px; color: var(--cv-text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+.cv-stat.cv-silver .cv-num, .cv-stat.cv-silver .cv-stat-icon { color: #e6e9f2; }
+.cv-stat.cv-orange .cv-num, .cv-stat.cv-orange .cv-stat-icon { color: var(--cv-orange); }
+.cv-stat.cv-blue .cv-num, .cv-stat.cv-blue .cv-stat-icon { color: var(--cv-blue); }
+.cv-stat.cv-purple .cv-num, .cv-stat.cv-purple .cv-stat-icon { color: var(--cv-purple); }
+.cv-stat.cv-green .cv-num, .cv-stat.cv-green .cv-stat-icon { color: var(--cv-green); }
+.cv-stat.cv-red .cv-num, .cv-stat.cv-red .cv-stat-icon { color: var(--cv-red); }
+.cv-stat.cv-gray .cv-num, .cv-stat.cv-gray .cv-stat-icon { color: var(--cv-gray); }
+.cv-stat.cv-offer {
+  align-items: center; text-align: center; border-radius: 50%;
+  justify-content: center; padding: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(79,227,161,0.16), rgba(255,255,255,0.02) 70%);
+  border-color: rgba(79,227,161,0.35);
+}
+.cv-stat.cv-offer .cv-lbl { margin-top: 2px; }
+.cv-stat.cv-offer .cv-num { font-size: 26px; margin-top: 2px; }
+
+@media (max-width: 1100px) {
+  .cv-stats { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ── Panel / card ── */
+.cv-panel {
+  background: var(--cv-panel);
+  border: 1px solid var(--cv-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.cv-panel-header { margin-bottom: 16px; }
+.cv-log-panel .cv-panel-header { display: flex; align-items: center; gap: 10px; }
+.cv-log-download { font-size: 12px; font-weight: 600; color: #4aa8ee; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(32,146,229,0.35); background: rgba(32,146,229,0.10); cursor: pointer; }
+.cv-log-download:hover { background: rgba(32,146,229,0.20); color: #eef1fa; }
+.cv-panel-title { font-size: 16px; font-weight: 700; color: var(--cv-text); display: flex; align-items: center; gap: 8px; }
+.cv-panel-desc { font-size: 12px; color: var(--cv-text-dim); margin-top: 4px; max-width: 640px; line-height: 1.5; }
+.cv-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); color: var(--cv-text-dim); }
+.cv-log-note { margin-left: auto; font-size: 11px; color: var(--cv-text-dim); }
+
+/* ── Toolbar ── */
+.cv-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.cv-search {
+  flex: 1; min-width: 180px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--cv-border);
+  color: var(--cv-text); padding: 9px 14px; border-radius: 10px; font-size: 12.5px; outline: none;
+}
+.cv-search:focus { border-color: var(--cv-blue); }
+.cv-select {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--cv-border);
+  color: var(--cv-text-dim); padding: 9px 12px; border-radius: 10px; font-size: 12.5px; cursor: pointer; outline: none;
+}
+
+/* ── Custom dropdowns (stage filter / sort) ──────────────────────
+   These used to be native <select> elements (still are, but now for
+   filter-form fields elsewhere — see career_voyager.html), which
+   can't have their open options list restyled by CSS: the browser
+   renders that popup itself using OS-native styling regardless of any
+   CSS on the page, which is why it showed up as a plain white/blue
+   list instead of matching the app's dark theme. These two toolbar
+   filters are plain divs driven by career_voyager_ui.js instead
+   (same pattern as .jo-dd in job_odyssey_ui.css), so the open panel
+   is fully styleable and matches the rest of the tab. */
+.cv-dd { position: relative; }
+.cv-dd-trigger {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--cv-border);
+  color: var(--cv-text-dim);
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+  outline: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap;
+}
+.cv-dd-trigger:hover { border-color: var(--cv-blue); }
+.cv-dd.cv-dd-open .cv-dd-trigger { border-color: var(--cv-blue); box-shadow: 0 0 0 1px rgba(74,184,255,0.25); }
+.cv-dd-val { color: var(--cv-text); font-weight: 600; }
+.cv-dd-chev { font-size: 9px; color: var(--cv-blue); margin-left: 1px; transition: transform .15s ease; }
+.cv-dd.cv-dd-open .cv-dd-chev { transform: rotate(180deg); }
+
+.cv-dd-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 170px;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #1c1e24, #101115);
+  border: 1px solid rgba(74,184,255,0.35);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.55), 0 0 18px -4px rgba(74,184,255,0.3);
+  z-index: 30;
+}
+.cv-dd.cv-dd-open .cv-dd-panel { display: block; }
+.cv-dd-opt {
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d6d6db;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cv-dd-opt:hover { background: rgba(74,184,255,0.12); color: #fff; }
+.cv-dd-opt.cv-dd-selected { background: rgba(74,184,255,0.18); color: var(--cv-blue); }
+
+/* Form-field variant (.cv-fdd) — used inside .cv-field in the Add/Edit
+   Application modal in place of the credential/stage/sub-stage selects.
+   Stretches to the field's full width and matches the neighboring
+   text inputs exactly, since '.cv-field select' no longer applies to
+   a div. */
+.cv-field .cv-fdd { width: 100%; }
+.cv-field .cv-fdd .cv-dd-trigger {
+  width: 100%; justify-content: space-between;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--cv-border);
+  padding: 9px 12px; border-radius: 10px; font-size: 12.5px;
+}
+.cv-field .cv-fdd.cv-dd-open .cv-dd-trigger { border-color: var(--cv-blue); }
+.cv-field .cv-fdd .cv-dd-panel { left: 0; right: 0; width: auto; min-width: 100%; }
+.cv-dd.cv-dd-disabled .cv-dd-trigger { opacity: .5; cursor: not-allowed; }
+.cv-btn-add {
+  margin-left: auto;
+  background: rgba(74,184,255,0.18); border: 1px solid rgba(74,184,255,0.5);
+  color: var(--cv-blue); padding: 9px 18px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+.cv-btn-add:hover { background: rgba(74,184,255,0.28); }
+.cv-btn-export {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(232,185,35,0.18); border: 1px solid rgba(232,185,35,0.5);
+  color: #e8b923; padding: 9px 16px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+.cv-btn-export svg { width: 15px; height: 15px; }
+.cv-btn-export:hover { background: rgba(232,185,35,0.28); }
+/* Export sits right before Add — only Add should push to the far right
+   when both are present. */
+.cv-btn-export + .cv-btn-add { margin-left: 0; }
+
+/* ── Table ── */
+.cv-tbl-wrap { overflow-x: auto; }
+.cv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+/* Applications table specifically, one step smaller — Job Sites keeps
+   the base 13px since it shares the same .cv-table class. */
+#cv-panel-apps .cv-table { font-size: 11px; }
+.cv-notes-row td { padding: 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.cv-notes-panel {
+  margin: 2px 12px 10px;
+  padding: 10px 14px;
+  background: rgba(255,157,66,0.06);
+  border: 1px solid rgba(255,157,66,0.2);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--cv-text-dim);
+  /* Job ID gets 1/5 of the panel, Notes gets the remaining 4/5 —
+     previously this was a single block showing only notes text, with
+     jobid captured in the Add/Edit modal but never actually displayed
+     anywhere (source has the same gap despite its own label reading
+     "Job ID / Notes:"). */
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.cv-notes-col { min-width: 0; }
+.cv-notes-jobid { flex: 1 1 20%; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 16px; }
+.cv-notes-text { flex: 4 1 80%; white-space: pre-wrap; word-break: break-word; }
+.cv-notes-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+  color: rgba(255,157,66,0.75); margin-bottom: 4px;
+}
+.cv-notes-value { word-break: break-word; }
+.cv-table thead th {
+  text-align: left; font-size: 10.5px; color: var(--cv-text-dim);
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 10px 12px; border-bottom: 1px solid var(--cv-border); white-space: nowrap;
+}
+.cv-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.cv-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+/* Alternating background per COMPANY GROUP (not per row) — so a
+   5-role company reads as one visual block instead of blending into
+   the next company, even though only the first row shows the name. */
+.cv-table tbody tr.cv-group-even td { background: rgba(255,157,66,0.025); }
+.cv-table tbody tr.cv-group-odd td { background: transparent; }
+.cv-table tbody tr.cv-group-even:hover td,
+.cv-table tbody tr.cv-group-odd:hover td { background: rgba(255,255,255,0.05); }
+/* Stronger divider right where a new company starts. */
+.cv-table tbody tr.cv-group-start td { border-top: 2px solid rgba(255,157,66,0.22); }
+.cv-table tbody tr.cv-group-start:first-child td { border-top: none; }
+.cv-table td { padding: 12px; vertical-align: top; color: var(--cv-text); }
+.cv-company-name { font-weight: 700; }
+.cv-company-link { font-size: 11px; color: var(--cv-blue); text-decoration: none; }
+.cv-company-link:hover { text-decoration: underline; }
+.cv-role-count { font-size: 10.5px; color: var(--cv-text-dim); }
+.cv-cred-badge {
+  display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  background: rgba(255,157,66,0.15); color: var(--cv-orange); border: 1px solid rgba(255,157,66,0.3);
+}
+.cv-credtype { font-size: 10.5px; color: var(--cv-text-dim); margin-top: 4px; }
+.cv-substage { font-size: 10.5px; color: var(--cv-text-dim); margin-top: 4px; }
+.cv-stage-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.cv-stage-badge.applied     { background: rgba(74,184,255,0.15); color: var(--cv-blue); }
+.cv-stage-badge.inprogress  { background: rgba(185,140,255,0.15); color: var(--cv-purple); }
+.cv-stage-badge.interview   { background: rgba(255,157,66,0.15); color: var(--cv-orange); }
+.cv-stage-badge.offer       { background: rgba(79,227,161,0.15); color: var(--cv-green); }
+.cv-stage-badge.rejected,
+.cv-stage-badge.withdrawn   { background: rgba(255,95,109,0.15); color: var(--cv-red); }
+.cv-stage-badge.closed,
+.cv-stage-badge.ghosted,
+.cv-stage-badge.na          { background: rgba(255,255,255,0.08); color: var(--cv-text-dim); }
+.cv-actions { display: flex; gap: 6px; }
+.cv-act-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--cv-border);
+  color: var(--cv-text-dim); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; cursor: pointer;
+}
+.cv-act-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--cv-text); }
+.cv-act-btn.cv-del:hover { border-color: var(--cv-red); color: var(--cv-red); }
+.cv-empty { text-align: center; padding: 40px 20px; color: var(--cv-text-dim); font-size: 13.5px; }
+
+/* ── Pagination. Same pill-bar structure as Job Odyssey's .jo-pg-*
+   (arrows + circular page numbers + ellipsis dots), recolored to this
+   tab's exact scrollbar color (#ff9d70/#ffb794) instead of the
+   separate --cv-orange (#ff9d42) the old flat-button style used —
+   picked from body[data-page-key="career-voyager"]'s --scroll-thumb
+   above, not a look-alike variable. ── */
+.cv-pagination { display: flex; justify-content: center; margin-top: 16px; }
+.cv-pg-bar { display: flex; align-items: center; gap: 3px; background: linear-gradient(180deg,#2a2622,#1c1815); border: 1px solid var(--cv-border); border-radius: 999px; padding: 4px; }
+.cv-pg-item, .cv-pg-arrow {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--cv-text-dim);
+  background: rgba(255,255,255,0.06); cursor: pointer; flex-shrink: 0;
+}
+.cv-pg-arrow { background: transparent; color: var(--cv-text-dim); }
+.cv-pg-item.cv-pg-active { background: linear-gradient(180deg,#ff9d70,#ffb794); color: #2a1200; }
+.cv-pg-dots { width: 16px; text-align: center; color: var(--cv-text-dim); font-size: 11px; }
+
+/* ── Activity log (in-memory only) ── */
+.cv-log-list {
+  max-height: 340px; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 12px;
+  background: rgba(0,0,0,0.3); color: #d8d8ea; border-radius: 10px; padding: 12px 16px; line-height: 1.8;
+}
+.cv-log-entry { white-space: pre-wrap; word-break: break-word; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.cv-log-entry:last-child { border-bottom: none; }
+.cv-log-ts  { color: var(--cv-purple); margin-right: 8px; }
+.cv-log-empty { color: var(--cv-text-dim); text-align: center; padding: 24px; font-size: 13px; }
+.cv-log-more {
+  display: block; width: 100%; margin-top: 8px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--cv-border);
+  color: var(--cv-blue); font-size: 12px; font-weight: 700;
+  padding: 8px; border-radius: 8px; cursor: pointer;
+}
+.cv-log-more:hover { background: rgba(74,184,255,0.12); border-color: var(--cv-blue); }
+
+/* ── Popup ── */
+.cv-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1099; }
+.cv-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  background: #11131e; border: 1px solid var(--cv-border); border-radius: 14px;
+  padding: 24px 28px; z-index: 1100; max-width: 380px; width: 90%; text-align: center;
+}
+.cv-popup p { font-size: 14px; color: var(--cv-text); margin-bottom: 18px; line-height: 1.5; }
+
+/* ── Modal ── */
+.cv-modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 999; align-items: center; justify-content: center;
+}
+.cv-modal-overlay.cv-open { display: flex; }
+.cv-modal {
+  background: #11131e; border: 1px solid var(--cv-border); border-radius: 16px;
+  padding: 28px 32px; width: 720px; max-width: 96vw; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5); position: relative;
+}
+.cv-modal-x {
+  position: absolute; top: 16px; right: 18px; background: none; border: none;
+  font-size: 22px; line-height: 1; color: var(--cv-text-dim); cursor: pointer; padding: 4px 8px; border-radius: 6px;
+}
+.cv-modal-x:hover { background: rgba(255,255,255,0.06); color: var(--cv-text); }
+.cv-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--cv-text); }
+.cv-field { margin-bottom: 14px; }
+.cv-field label { display: block; font-size: 11.5px; font-weight: 600; color: var(--cv-text-dim); margin-bottom: 6px; }
+.cv-field input, .cv-field select, .cv-field textarea {
+  width: 100%; padding: 9px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--cv-border);
+  color: var(--cv-text); font-size: 12.5px; outline: none; font-family: inherit;
+}
+.cv-field input:focus, .cv-field select:focus, .cv-field textarea:focus { border-color: var(--cv-blue); }
+.cv-field input:disabled, .cv-field select:disabled { opacity: .5; cursor: not-allowed; }
+.cv-field textarea { resize: vertical; min-height: 60px; }
+.cv-form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cv-form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.cv-substage-row { display: none; margin-bottom: 14px; }
+.cv-substage-row.cv-visible { display: block; }
+.cv-modal-divider { border: none; border-top: 1px solid var(--cv-border); margin: 16px 0; }
+.cv-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.cv-btn-cancel {
+  padding: 9px 18px; border-radius: 10px; border: 1px solid var(--cv-border);
+  background: rgba(255,255,255,0.05); color: var(--cv-text-dim); font-size: 12.5px; cursor: pointer;
+}
+.cv-btn-save {
+  padding: 9px 20px; border-radius: 10px; border: 1px solid rgba(74,184,255,0.6);
+  background: rgba(74,184,255,0.25); color: var(--cv-blue); font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .cv-form-row-2, .cv-form-row-3 { grid-template-columns: 1fr; }
+}

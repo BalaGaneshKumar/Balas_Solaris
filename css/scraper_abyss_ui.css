@@ -1,0 +1,223 @@
+/* scraper_abyss_ui.css — Scraper Abyss tab page: header-bar content
+   (title + description), the log button + activity log panel, and a
+   placeholder tab-content area (no scraper dashboard built yet — see
+   fragments/scraper_abyss.html's sa_content()).
+
+   Fills the two placeholders left empty in tab.html/tab.css
+   (.tab-header-bar, .log-btn — see the comments there) plus the
+   .tab-content area, but ONLY for this tab: everything here is scoped
+   under .tab-body[data-current-planet="scraper-abyss"] so it never
+   affects the other 3 tab pages, which share the same tab.html/tab.css
+   skeleton. Injected server-side via the sa_header()/sa_log()/
+   sa_content() macros in fragments/scraper_abyss.html; behavior wired
+   up by js/scraper_abyss_ui.js.
+
+   Literal hex/rgba values throughout, not var(--sa-*) custom
+   properties — job_odyssey_ui.css found custom properties silently
+   failing to resolve for some declarations in this project's actual
+   cascade, so every tab built since has followed that same
+   literal-value convention rather than reintroducing the risk. */
+
+/* Scrollbar color for this tab. Scoped to body (not .tab-body) since
+   <body> is the actual scroll container (see base.css) and is an
+   ANCESTOR of .tab-body — a variable set only on .tab-body can't
+   reach body's own scrollbar. Moved here from base.css now that this
+   tab finally has its own file (base.css had a comment marking this
+   exact move for whenever that happened). */
+body[data-page-key="scraper-abyss"] {
+  --scroll-thumb: #2092e5;
+  --scroll-thumb-hover: #4aa8ee;
+}
+
+/* ── Header bar: title + description. Position/size matches the other
+   3 tabs exactly (tab.css default left:272/right:96 -> left:208/
+   right:260). ── */
+.tab-body[data-current-planet="scraper-abyss"] .tab-header-bar {
+  left: 208px;
+  right: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sa-header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.sa-title { font-size: 22px; font-weight: 700; letter-spacing: .3px; color: #eef1fa; font-family: 'Segoe UI', system-ui, sans-serif; }
+.sa-sub { font-size: 12.5px; color: #9aa3bd; max-width: 440px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* Beacon/Hyperlane pill row — same structure as Career Voyager's
+   .cv-tabs/.cv-tab (pill container, individual pill buttons, one
+   active at a time), recolored to this tab's blue instead of amber/
+   cyan. Adding this row also fixes the title's vertical position:
+   the header block is flex-centered as a whole (see .tab-header-bar
+   below), so a 3-row block (title + subtitle + this row) now centers
+   to the same spot Career Voyager's 3-row block does, instead of
+   sitting lower the way the old 2-row block did. */
+.sa-tabs {
+  display: inline-flex; gap: 8px; margin-top: 6px;
+  padding: 5px; width: fit-content;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 26px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.sa-tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 15px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: #94a3b8;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; outline: none;
+  transition: all .2s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.sa-tab:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); }
+.sa-tab-icon { width: 14px; height: 14px; stroke: #94a3b8; transition: stroke .2s ease; }
+.sa-tab.sa-tab-active .sa-tab-icon { stroke: #4aa8ee; }
+.sa-tab.sa-tab-active {
+  background: linear-gradient(180deg, rgba(32,146,229,0.18) 0%, rgba(10,70,110,0.12) 100%);
+  border-color: rgba(32,146,229,0.6); color: #d9edfb;
+  box-shadow: 0 0 14px rgba(32,146,229,0.25);
+}
+
+/* ── Log button (fills the shared .log-btn placeholder). Same
+   right:160px pulled position as the other 3 tabs, same visual
+   structure as Job Odyssey's .jo-log-visual, recolored to this tab's
+   blue (#2092e5) instead of gold. ── */
+.tab-body[data-current-planet="scraper-abyss"] .log-btn {
+  right: 160px;
+  color: initial;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sa-log-visual {
+  position: relative;
+  width: 64px; height: 78px;
+  background: radial-gradient(120% 100% at 50% 20%, #0a1c28 0%, #04080d 75%);
+  border: 1.5px solid rgba(32,146,229,0.5);
+  border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 16px rgba(32,146,229,0.18), inset 0 0 10px rgba(32,146,229,0.08);
+  transition: box-shadow .18s, border-color .18s, transform .1s;
+}
+.tab-body[data-current-planet="scraper-abyss"] .log-btn:hover .sa-log-visual {
+  box-shadow: 0 0 22px rgba(32,146,229,0.32), inset 0 0 12px rgba(32,146,229,0.12);
+  border-color: rgba(32,146,229,0.75);
+  transform: translateY(-1px);
+}
+.log-btn.sa-open .sa-log-visual {
+  border-color: #4aa8ee;
+  box-shadow: 0 0 26px rgba(32,146,229,0.5), inset 0 0 14px rgba(32,146,229,0.16);
+}
+.sa-log-icon { width: 26px; height: 26px; color: #4aa8ee; filter: drop-shadow(0 0 5px rgba(32,146,229,0.5)); }
+.sa-log-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #bfe0fb; }
+.sa-log-count {
+  position: absolute; top: -7px; right: -7px;
+  background: #ff5f6d; color: #fff; font-size: 10px; font-weight: 700;
+  min-width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #05060c; z-index: 2;
+}
+.sa-log-count[data-empty="1"] { display: none; }
+
+/* ── Content area (placeholder — see file header) ── */
+.tab-body[data-current-planet="scraper-abyss"] .tab-content {
+  display: block;
+  align-items: initial;
+  margin-top: -20px;
+  padding: 0 24px 48px;
+}
+.sa-wrap { max-width: 1400px; margin: 0 auto; }
+
+/* ── Panel (Requests / Workflows) — same bordered-card structure as
+   Career Voyager's .cv-panel/.cv-panel-header/.cv-panel-title/
+   .cv-panel-desc/.cv-pill, recolored to this tab's blue. Only one
+   .sa-panel is visible at a time, toggled by the Beacon/Hyperlane pill
+   row (see js/scraper_abyss_ui.js). No dashboard exists yet for this
+   tab, so the "Coming soon" pill sits in the exact slot Career's count
+   badge (e.g. "398") occupies once there's real data to count. ── */
+.sa-panel {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.sa-panel-header { margin: 0; }
+.sa-panel-title { font-size: 16px; font-weight: 700; color: #eef1fa; display: flex; align-items: center; gap: 8px; font-family: 'Segoe UI', system-ui, sans-serif; }
+.sa-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(32,146,229,0.18); color: #4aa8ee; }
+.sa-panel-desc { font-size: 12px; color: #9aa3bd; margin-top: 4px; max-width: 640px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
+.sa-pill-count { background: rgba(32,146,229,0.18); color: #4aa8ee; }
+
+/* ── Activity log panel (toggled open by the log button) ── */
+.sa-log-panel {
+  margin-top: 28px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid rgba(32,146,229,0.25);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.sa-log-panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sa-log-download { font-size: 12px; font-weight: 600; color: #4aa8ee; text-decoration: none; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(32,146,229,0.35); background: rgba(32,146,229,0.10); }
+.sa-log-download:hover { background: rgba(32,146,229,0.20); color: #eef1fa; }
+.sa-log-panel-header { font-size: 14px; font-weight: 700; color: #eef1fa; display: inline-flex; align-items: center; gap: 8px; }
+.sa-log-pill {
+  background: rgba(32,146,229,0.18); color: #4aa8ee; font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px;
+}
+.sa-log-note { margin-left: auto; font-size: 11px; color: #6c7592; }
+/* Drag the bottom-right corner handle to extend the list downward. */
+.sa-log-list { display: flex; flex-direction: column; gap: 6px; height: 260px; min-height: 120px; max-height: 90vh; overflow-y: auto; resize: vertical; }
+.sa-log-entry { font-size: 12px; color: #c7ccd6; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.03); }
+.sa-log-time { color: #6c7592; margin-right: 8px; font-variant-numeric: tabular-nums; }
+.sa-log-more {
+  display: block; width: 100%; margin-top: 8px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(32,146,229,0.3);
+  color: #4aa8ee; font-size: 12px; font-weight: 700;
+  padding: 8px; border-radius: 8px; cursor: pointer;
+}
+.sa-log-more:hover { background: rgba(32,146,229,0.12); border-color: #4aa8ee; }
+
+/* ── Toast notifications (window.SolarisScraperToast — see
+   js/scraper_abyss_ui.js). Fixed to the viewport, not scoped to
+   either Beacon or Hyperlane, so it's visible regardless of which
+   panel is active when a submit resolves. ── */
+.sa-toast-stack {
+  position: fixed; top: 20px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: 380px;
+  pointer-events: none;
+}
+.sa-toast {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #10141b; border-radius: 12px; padding: 12px 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12.5px; color: #eef1fa;
+  opacity: 0; transform: translateX(24px);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: auto;
+}
+.sa-toast.sa-toast-in { opacity: 1; transform: translateX(0); }
+.sa-toast-success { border: 1px solid rgba(74,222,128,0.4); }
+.sa-toast-success .sa-toast-icon { color: #4ade80; }
+.sa-toast-error { border: 1px solid rgba(248,113,113,0.4); }
+.sa-toast-error .sa-toast-icon { color: #f87171; }
+.sa-toast-icon { flex-shrink: 0; margin-top: 1px; }
+.sa-toast-icon svg { width: 18px; height: 18px; }
+.sa-toast-msg { flex: 1; line-height: 1.5; word-break: break-word; }
+.sa-toast-close {
+  flex-shrink: 0; background: none; border: none; color: #6c7592; font-size: 16px;
+  line-height: 1; cursor: pointer; padding: 0 0 0 4px;
+}
+.sa-toast-close:hover { color: #eef1fa; }

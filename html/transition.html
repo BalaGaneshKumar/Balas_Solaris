@@ -1,0 +1,38 @@
+<!--
+  transition.html — NOT a live page/route. This documents the "Back to
+  Solaris" / nav-cluster pattern used on the tab pages (see html/tab_base.html
+  for the actual working version). The transition system itself
+  (SolarisTransition.*) now lives inside js/solaris.js — there is no
+  separate transition.js file anymore, it was merged in.
+-->
+
+<!-- Just include solaris.css and solaris.js — SolarisTransition.* is
+     available as soon as solaris.js has loaded: -->
+<link rel="stylesheet" href="/solaris/solaris.css" />
+<script src="/solaris/solaris.js"></script>
+
+<!-- "Back to Solaris" button, styled by .solaris-return-btn in solaris.css: -->
+<a href="/solaris" class="solaris-return-btn" id="solaris-back">
+  <span class="dot"></span> Back to Solaris
+</a>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.getElementById('solaris-back');
+    if (backBtn) {
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        SolarisTransition.returnHome();
+      });
+    }
+    SolarisTransition.playEntrance();
+  });
+</script>
+
+<!--
+  Note: the tab pages built so far (job-odyssey, career-voyager,
+  scraper-abyss, profile-nexus) use the fancier cluster-collapse
+  transition instead of this simpler iris/return-button pattern — see
+  tab_base.html + tab.js for that. This file is kept as a reference for
+  the simpler pattern in case a future page wants it instead.
+-->

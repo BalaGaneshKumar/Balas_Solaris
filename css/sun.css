@@ -1,0 +1,121 @@
+/* ─── Header ────────────────────────────────────────────────── */
+.solaris-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  text-align: center;
+}
+
+.sun-wrap {
+  position: relative;
+  display: inline-block;
+  width: 238px;
+  height: 238px;
+  border-radius: 50%;
+}
+
+.sun-orb {
+  width: 238px;
+  height: 238px;
+  display: block;
+  border-radius: 50%;
+  -webkit-mask-image: radial-gradient(circle, black 70%, transparent 90%);
+  mask-image: radial-gradient(circle, black 70%, transparent 90%);
+}
+
+@keyframes sun-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.sun-orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,0.08) 0 2px,
+      transparent 2px 5px),
+    radial-gradient(circle at 65% 70%, rgba(124, 45, 18, 0.35) 0 14px, transparent 16px),
+    radial-gradient(circle at 25% 65%, rgba(124, 45, 18, 0.25) 0 10px, transparent 12px);
+  mix-blend-mode: overlay;
+  animation: sun-churn 40s linear infinite;
+}
+
+/* Glow lives here, centered on the sun, sized to 132px (66px radius)
+   to match the sun texture's own rendered radius (~66px at 238px wrap
+   size; see js/sun.js SphereGeometry comment).
+   The gradient stays flat and fully opaque gold through the middle of
+   its radius, only fading in the outer band near its own edge —
+   colors: solid gold core (#FFCC00) → soft orange edge (#FF8C00) →
+   transparent. */
+.sun-flare {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle,
+                rgba(255, 221, 100, 1) 0%,
+                rgba(255, 204, 0, 1) 55%,
+                rgba(255, 179, 0, 0.95) 70%,
+                rgba(255, 140, 0, 0.6) 85%,
+                rgba(255, 140, 0, 0) 100%);
+  box-shadow: 0 0 45px rgba(255, 215, 0, 0.85),
+              0 0 85px rgba(255, 179, 0, 0.55),
+              0 0 130px rgba(255, 140, 0, 0.3);
+  animation: sun-glow-pulse 6s ease-in-out infinite;
+}
+
+@keyframes sun-glow-pulse {
+  0%   { transform: translate(-50%, -50%) scale(1);
+         box-shadow: 0 0 45px rgba(255, 215, 0, 0.85),
+                     0 0 85px rgba(255, 179, 0, 0.55),
+                     0 0 130px rgba(255, 140, 0, 0.3); }
+  22%  { transform: translate(-50%, -50%) scale(1.05);
+         box-shadow: 0 0 58px rgba(255, 223, 0, 1),
+                     0 0 105px rgba(255, 179, 0, 0.7),
+                     0 0 155px rgba(255, 140, 0, 0.42); }
+  48%  { transform: translate(-50%, -50%) scale(0.97);
+         box-shadow: 0 0 38px rgba(255, 208, 0, 0.75),
+                     0 0 78px rgba(255, 170, 0, 0.48),
+                     0 0 120px rgba(255, 140, 0, 0.26); }
+  70%  { transform: translate(-50%, -50%) scale(1.03);
+         box-shadow: 0 0 52px rgba(255, 220, 0, 0.95),
+                     0 0 95px rgba(255, 179, 0, 0.65),
+                     0 0 145px rgba(255, 140, 0, 0.38); }
+  100% { transform: translate(-50%, -50%) scale(1);
+         box-shadow: 0 0 45px rgba(255, 215, 0, 0.85),
+                     0 0 85px rgba(255, 179, 0, 0.55),
+                     0 0 130px rgba(255, 140, 0, 0.3); }
+}
+
+@keyframes sun-churn {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.solaris-title {
+  font-size: 41px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-top: -28px; /* compensates for .sun-orb's mask-image fade (see above) — that fade leaves ~35-40px of visually empty space at the bottom of its own box before the flex gap even starts, which otherwise reads as a much bigger gap than the actual 9px between title and sun */
+}
+
+.solaris-tagline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+

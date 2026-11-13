@@ -1,0 +1,108 @@
+{#
+  scraper_abyss.html — the ONE html file holding everything specific to
+  the Scraper Abyss tab (header-bar content, log button content, and
+  the tab-content). tab.html is the shared "transition stuff" skeleton
+  used by all 4 tabs (nav-cluster, header shell, log-btn shell,
+  tab-content shell) — it imports these three macros and calls each
+  one at its matching slot, only when current_key == 'scraper-abyss':
+
+      {% from "fragments/scraper_abyss.html" import sa_header, sa_log, sa_content %}
+      {{ sa_header(active_sub) }}   -> inside .tab-header-bar
+      {{ sa_log() }}      -> inside #log-btn
+      {{ sa_content(workflows, active_sub) }}  -> inside .tab-content
+
+  active_sub ('beacon'|'hyperlane', defaults to 'beacon') decides which
+  of the Beacon/Hyperlane panels is server-rendered visible and which
+  tab pill starts marked active — set by solaris.py based on which URL
+  was hit (/scraper-abyss defaults to beacon; /scraper-abyss/request
+  and /scraper-abyss/workflow set it explicitly), so a direct link,
+  bookmark, or browser back/forward always lands on the right panel
+  with no flash of the wrong one. Switching panels via click stays a
+  pure client-side toggle after that (js/scraper_abyss_ui.js) — it
+  also updates the URL via history.pushState so the address bar stays
+  correct, but deliberately does NOT re-fetch/re-render through the
+  router (that would be a heavier round trip for what's just a
+  visibility swap, same reasoning as Career Voyager/Profile Nexus).
+
+  Behavior (log toggle, now server-backed activity log — see
+  py/scraper_activity_log.py) lives in js/scraper_abyss_ui.js —
+  this file is markup only. Styling lives in css/scraper_abyss_ui.css.
+
+  The Requests (Beacon) panel content lives in its own file
+  (fragments/scraper_requests.html) per project convention — imported
+  below and rendered via sa_requests_form(), same as the Workflows list
+  reads from py/workflow_store.py (real, file-backed — ported from the
+  source dashboard) rather than everything being crammed into this one
+  file.
+#}
+
+{% from "fragments/scraper_requests.html" import sa_requests_form %}
+{% from "fragments/scraper_workflows_table.html" import sa_workflows_table %}
+
+{% macro sa_header(active_sub='beacon') %}
+<div class="sa-header-inner">
+  <div class="sa-title">Scraper Abyss</div>
+  <div class="sa-sub">Reaching into the digital deep to extract value from the vast unknown.</div>
+
+  <div class="sa-tabs" id="sa-tabs">
+    <button class="sa-tab {{ 'sa-tab-active' if active_sub == 'beacon' else '' }}" id="sa-tab-beacon" data-sa-tab="beacon">
+      <svg class="sa-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="2"></circle>
+        <path d="M4.93 19.07a10 10 0 0 1 0-14.14"></path>
+        <path d="M7.76 16.24a6 6 0 0 1 0-8.49"></path>
+        <path d="M16.24 7.76a6 6 0 0 1 0 8.49"></path>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+      </svg>
+      <span>Beacon</span>
+    </button>
+    <button class="sa-tab {{ 'sa-tab-active' if active_sub == 'hyperlane' else '' }}" id="sa-tab-hyperlane" data-sa-tab="hyperlane">
+      <svg class="sa-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span>Hyperlane</span>
+    </button>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro sa_log() %}
+<div class="sa-log-visual">
+  <span class="sa-log-count" id="sa-log-count" data-empty="1">0</span>
+  <svg class="sa-log-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="3" width="14" height="19" rx="2.2"/>
+    <rect x="8.5" y="1.6" width="7" height="3" rx="1"/>
+    <line x1="8" y1="9" x2="8" y2="9"/><line x1="11" y1="9" x2="16" y2="9"/>
+    <line x1="8" y1="13" x2="8" y2="13"/><line x1="11" y1="13" x2="16" y2="13"/>
+    <line x1="8" y1="17" x2="8" y2="17"/><line x1="11" y1="17" x2="16" y2="17"/>
+  </svg>
+  <span class="sa-log-label">LOGS</span>
+</div>
+{% endmacro %}
+
+{% macro sa_content(workflows, active_sub='beacon') %}
+<div class="sa-wrap">
+
+  <div id="sa-panel-beacon" {{ 'style="display:none"'|safe if active_sub != 'beacon' else '' }}>
+    {{ sa_requests_form() }}
+  </div>
+
+  <div id="sa-panel-hyperlane" {{ 'style="display:none"'|safe if active_sub != 'hyperlane' else '' }}>
+    {{ sa_workflows_table(workflows) }}
+  </div>
+
+  <!-- Server-backed (py/scraper_activity_log.py) — see
+       js/scraper_abyss_ui.js. Resets when the server process
+       restarts, same as every other tab's log currently does, but
+       now survives a browser refresh within that lifetime. -->
+  <div class="log-scroll-row"><button type="button" class="scroll-circle-btn" data-scroll="top" title="Jump to the top" aria-label="Jump to the top"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+  <div class="sa-log-panel" id="sa-log-panel" style="display:none">
+    <div class="sa-log-panel-head">
+      <div class="sa-log-panel-header">Activity Log <span class="sa-log-pill" id="sa-log-list-count">0</span></div>
+      <span class="sa-log-note">This session only — not saved</span>
+      <a class="sa-log-download" id="sa-log-download" href="/solaris/api/scraper-activity-log/download" download title="Download the whole activity log as a text file">Download</a>
+    </div>
+    <div class="sa-log-list" id="sa-log-list"></div>
+  </div>
+
+</div>
+{% endmacro %}

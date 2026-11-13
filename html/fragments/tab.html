@@ -1,0 +1,55 @@
+<div class="tab-body" data-page="tab" data-current-planet="{{ current_key }}">
+{% if current_key == 'profile-nexus' %}
+{% from "fragments/profile_nexus.html" import pnx_header, pnx_log, pnx_content %}
+{% endif %}
+{% if current_key == 'career-voyager' %}
+{% from "fragments/career_voyager.html" import cv_header, cv_log, cv_content %}
+{% endif %}
+{% if current_key == 'job-odyssey' %}
+{% from "fragments/job_odyssey.html" import jo_header, jo_log, jo_content %}
+{% endif %}
+{% if current_key == 'scraper-abyss' %}
+{% from "fragments/scraper_abyss.html" import sa_header, sa_log, sa_content %}
+{% endif %}
+
+  <header class="tab-header">
+    <div class="nav-cluster">
+      <a href="/solaris" class="cluster-node cluster-home" id="cluster-home" aria-label="Back to Solaris home">
+        <div class="cluster-planet-wrap" data-planet-shell="sun"></div>
+      </a>
+
+      {% for p in others %}
+      <a href="{{ p.url }}" class="cluster-node cluster-mini cluster-{{ p.slot }}" data-planet="{{ p.key }}" aria-label="{{ p.label }}">
+        <div class="cluster-planet-wrap" data-planet-shell="{{ p.key }}"></div>
+      </a>
+      {% endfor %}
+
+      <div class="cluster-node cluster-big" aria-label="{{ title }} — current page">
+        <div class="cluster-planet-wrap" data-planet-shell="{{ current_key }}"></div>
+      </div>
+    </div>
+
+    <!-- Empty for every other tab; filled by pnx_header()/cv_header()/
+         jo_header()/sa_header() only on their matching tab. -->
+    <div class="tab-header-bar">{% if current_key == 'profile-nexus' %}{{ pnx_header() }}{% elif current_key == 'career-voyager' %}{{ cv_header(active_sub or 'apps') }}{% elif current_key == 'job-odyssey' %}{{ jo_header() }}{% elif current_key == 'scraper-abyss' %}{{ sa_header(active_sub or 'beacon') }}{% endif %}</div>
+
+    <!-- Empty/disabled for every other tab; filled + enabled by
+         pnx_log()/cv_log()/jo_log()/sa_log() only on their matching tab. -->
+    <button class="log-btn" id="log-btn" aria-label="Log"{% if current_key not in ['profile-nexus', 'career-voyager', 'job-odyssey', 'scraper-abyss'] %} disabled{% endif %}>
+      {% if current_key == 'profile-nexus' %}{{ pnx_log() }}{% elif current_key == 'career-voyager' %}{{ cv_log() }}{% elif current_key == 'job-odyssey' %}{{ jo_log() }}{% elif current_key == 'scraper-abyss' %}{{ sa_log() }}{% else %}Log button{% endif %}
+    </button>
+
+    {% if current_key in ['profile-nexus', 'career-voyager', 'job-odyssey', 'scraper-abyss'] %}
+    <!-- Jump to the very bottom of the page, beside the Log button. (The way
+         back up is the circular up-arrow just above the Activity Log.) -->
+    <div class="scroll-nav">
+      <button type="button" class="scroll-circle-btn" data-scroll="bottom" title="Jump to the bottom" aria-label="Jump to the bottom"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></button>
+    </div>
+    {% endif %}
+  </header>
+
+  <main class="tab-content">
+    {% if current_key == 'profile-nexus' %}{{ pnx_content(active_sub or 'personal') }}{% elif current_key == 'career-voyager' %}{{ cv_content(active_sub or 'apps') }}{% elif current_key == 'job-odyssey' %}{{ jo_content() }}{% elif current_key == 'scraper-abyss' %}{{ sa_content(workflows, active_sub or 'beacon') }}{% endif %}
+  </main>
+
+</div>

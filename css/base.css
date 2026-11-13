@@ -1,0 +1,135 @@
+/* ─── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --space-bg:      #060710;
+  --text-primary:  #e8e8f0;
+  --text-muted:    #8888a8;
+  --sun-orange:    #f97316;
+  --sun-core:      #fde68a;
+  --transition:    0.25s ease;
+  /* Scrollbar — shared structure here, color overridden per tab via
+     .tab-body[data-current-planet="..."] { --scroll-thumb: ...; }
+     (see job_odyssey_ui.css for the first example). This default
+     (neutral gray) applies to any page/element that doesn't override it. */
+  --scroll-thumb:       #8a90a6;
+  --scroll-thumb-hover: #a4abbd;
+}
+
+/* ─── Scrollbar (global default look, color overridable per tab) ─── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) rgba(255,255,255,0.05);
+}
+*::-webkit-scrollbar { width: 12px; }
+*::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+  margin: 8px 3px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+  border: 3px solid #0e1116;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+
+/* Home page (the solar-canvas planet-cluster page, not a tab) and the
+   initial boot/power-on state — both scoped here since neither has
+   its own per-page CSS file the way the 4 tabs do. */
+body[data-page-key="home"] { --scroll-thumb: #dec9ba; --scroll-thumb-hover: #ecdfd4; }
+body.solaris-booting { --scroll-thumb: #b8bcc8; --scroll-thumb-hover: #cbcfda; }
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--space-bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* ─── Power-on boot state ──────────────────────────────────────
+   Default look before the sun is ever clicked this session: sun alone,
+   desaturated; title/tagline dim and greyed; planets and Terminus fully
+   present in the DOM (so their assets are already warm) but invisible.
+   See js/boot.js for the reveal sequence. */
+body.solaris-booting .planet-node,
+body.solaris-booting .blackhole-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+body.solaris-booting .solaris-title,
+body.solaris-booting .solaris-tagline {
+  /* .text-anim's entrance keyframe uses fill-mode:forwards, which holds
+     its own opacity/transform values with higher priority than these
+     rules — switch it off while booting so the styles below actually
+     apply. It resumes normally once solaris-booting is removed. */
+  animation: none;
+}
+body.solaris-booting .solaris-title {
+  filter: grayscale(1);
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+body.solaris-booting .solaris-tagline {
+  display: none;
+}
+body.solaris-booting .sun-wrap,
+body.solaris-booting .sun-flare {
+  filter: grayscale(1);
+}
+body.solaris-booting .sun-orb {
+  cursor: pointer;
+}
+
+.planet-node, .blackhole-btn {
+  transition: opacity 0.6s ease;
+}
+.sun-wrap, .sun-flare {
+  transition: filter 1s ease;
+}
+.solaris-title, .solaris-tagline {
+  transition: filter 0.6s ease, opacity 0.6s ease;
+}
+
+/* Expanding ring used to sell "color spreading out from the sun" the
+   moment it's clicked — a short-lived, JS-created element (see
+   js/boot.js), not something that stays in the DOM. */
+.power-pulse {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 224, 130, 0.9) 0%, rgba(255, 179, 0, 0.5) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 998;
+  opacity: 1;
+  transform: scale(0);
+  transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.5s ease;
+}
+
+/* ─── Text entrance animation ──────────────────────────────────
+   Applied via .text-anim to every visible text element (title,
+   tagline, planet labels, tab label). Runs automatically whenever
+   the element is freshly mounted (page load or SPA fragment swap),
+   since @keyframes animations start the moment the class is present
+   on a newly-inserted node — no JS trigger needed. */
+@keyframes solaris-text-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.text-anim {
+  opacity: 0;
+  animation: solaris-text-in 0.5s ease forwards;
+}
+.solaris-title.text-anim { animation-delay: 0.05s; }
+.solaris-tagline.text-anim { animation-delay: 0.15s; }
+.planet-row .planet-node:nth-child(1) .text-anim { animation-delay: 0.1s; }
+.planet-row .planet-node:nth-child(2) .text-anim { animation-delay: 0.2s; }
+.planet-row .planet-node:nth-child(3) .text-anim { animation-delay: 0.3s; }
+.planet-row .planet-node:nth-child(4) .text-anim { animation-delay: 0.4s; }
+

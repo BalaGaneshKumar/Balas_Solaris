@@ -1,0 +1,13 @@
+/* ─── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sun-icon, .blackhole-disk, .planet-orb::before { animation: none; }
+  .text-anim { animation: none; opacity: 1; }
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .solaris-title { font-size: 29px; }
+  .planet-row { gap: 31px; }
+  .planet-orb { width: 71px; height: 71px; }
+}
+

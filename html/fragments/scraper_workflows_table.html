@@ -1,0 +1,135 @@
+{#
+  scraper_workflows_table.html — Workflows (Hyperlane) panel content
+  for Scraper Abyss. Kept in its own file per project convention, same
+  as fragments/scraper_requests.html has its own set for the Beacon
+  panel.
+
+  Status filters are plain icon+label legend items (no pill/chamber
+  chrome — explicit direction), same icon set now shared with each
+  table row's status badge (see status_svg() below) rather than rows
+  falling back to one generic circle regardless of status. "In
+  Progress" reuses the exact spinning-ring animation from the Workflow
+  Detail page (css/scraper_workflow_detail.css's .wfd-icon-spin),
+  ported here as .wt-icon-spin — see css/scraper_workflows_table_ui.css.
+
+  Table header follows the same convention as Career Voyager's
+  .cv-table (transparent background, muted uppercase small text, just
+  a bottom border) rather than a solid dark bar, so it sits naturally
+  inside the glass panel like every other table in the app.
+
+  Imported into sa_content() in scraper_abyss.html and rendered inside
+  #sa-panel-hyperlane. Behavior (status filter, refresh, and now real
+  auto-refresh polling against /api/workflow-list) lives in
+  js/scraper_workflows_table_ui.js; styling in
+  css/scraper_workflows_table_ui.css.
+
+  Data source: py/workflow_store.list_workflows() (real, file-backed —
+  ported from the source dashboard's workflow_store.py), passed in here
+  as `workflows` by solaris.py's _render_tab(). Its dicts already carry
+  final display values — status is one of waiting/in_progress/hold/
+  failed/cancelled/completed (not the old mock's running/idle/error),
+  and `stage` is already the computed "current stage" label — so this
+  template reads fields directly instead of calling the old
+  scraper_table_status()/scraper_current_stage() jinja globals, which
+  were removed along with py/scraper_store.py (see solaris.py).
+#}
+{% macro sa_workflows_table(workflows) %}
+
+{# Shared status -> icon markup, used by BOTH the legend row and every
+   table row's status badge, so a status looks the same wherever it
+   appears (previously every row used one plain static circle
+   regardless of status — the legend already had 6 distinct icons that
+   rows never used at all). 'In Progress' specifically now reuses the
+   exact spinning-ring design from the Workflow Detail page
+   (css/scraper_workflow_detail.css's .wfd-icon-spin/.wfd-trk/.wfd-rng)
+   instead of the static lightning-bolt placeholder — ported here as
+   .wt-icon-spin/.wt-trk/.wt-rng (see css/scraper_workflows_table_ui.css)
+   so an in-progress workflow reads as visibly "live" the same way it
+   does on its own detail page. #}
+{% set status_icons = {
+  'Waiting': '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline>',
+  'Hold': '<circle cx="12" cy="12" r="9"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line>',
+  'Failed': '<circle cx="12" cy="12" r="9"></circle><line x1="14.5" y1="9.5" x2="9.5" y2="14.5"></line><line x1="9.5" y1="9.5" x2="14.5" y2="14.5"></line>',
+  'Cancelled': '<circle cx="12" cy="12" r="9"></circle><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"></line>',
+  'Completed': '<circle cx="12" cy="12" r="9"></circle><polyline points="15.5 8.5 10.3 14 8.5 12"></polyline>'
+} %}
+{% macro status_svg(label) %}{% if label == 'In Progress' %}<svg viewBox="0 0 24 24" class="wt-icon-spin" fill="none" stroke="currentColor" stroke-linecap="round"><circle class="wt-trk" cx="12" cy="12" r="9"></circle><circle class="wt-rng" cx="12" cy="12" r="9"></circle></svg>{% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{{ status_icons.get(label, status_icons['Waiting'])|safe }}</svg>{% endif %}{% endmacro %}
+
+<div class="wt-hub">
+
+  <div class="wt-header">
+    <div class="wt-title-group">
+      <div class="wt-title-row">
+        <h1 class="wt-title">Workflows</h1>
+        <div class="wt-count-badge" id="wt-count">{{ workflows|length }}</div>
+      </div>
+      <p class="wt-subtitle">Accelerating automated pathways and streamlining high-speed task execution.</p>
+    </div>
+
+    <div class="wt-actions-deck">
+      <button type="button" class="wt-refresh-btn" id="wt-refresh-btn" title="Refresh Workflows">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        <span>Refresh</span>
+      </button>
+      <label class="wt-toggle" id="wt-auto-refresh">
+        <input type="checkbox" checked>
+        <span class="wt-toggle-track"><span class="wt-toggle-thumb"></span></span>
+        <span class="wt-toggle-caption">Auto Refresh</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Plain icon+label legend, not pills/chambers — per explicit
+       direction. Icons now shared with the table rows (see
+       status_svg() above) rather than each keeping its own separate
+       placeholder set. -->
+  <div class="wt-legend" id="wt-legend">
+    {% for key in ['Waiting', 'In Progress', 'Hold', 'Failed', 'Cancelled', 'Completed'] %}
+    <div class="wt-legend-item wt-active wt-status-{{ key|lower|replace(' ', '-') }}" data-status="{{ key }}">
+      {{ status_svg(key) }}
+      <span>{{ key }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="wt-table-viewport">
+    <table class="wt-table">
+      <thead>
+        <tr>
+          <th style="width:130px;">Status</th>
+          <th style="width:200px;">Workflow ID</th>
+          <th style="width:110px;">Portal</th>
+          <th style="width:110px;">Type</th>
+          <th style="width:200px;">Stage</th>
+          <th>Started</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody id="wt-tbody">
+        {% set status_display = {
+          'waiting': 'Waiting', 'in_progress': 'In Progress', 'hold': 'Hold',
+          'failed': 'Failed', 'cancelled': 'Cancelled', 'completed': 'Completed'
+        } %}
+        {% for wf in workflows %}
+        {% set label = status_display.get(wf.status, wf.status) %}
+        <tr data-status="{{ label }}">
+          <td>
+            <div class="wt-legend-item wt-legend-item-mini wt-active wt-status-{{ label|lower|replace(' ', '-') }}">
+              {{ status_svg(label) }}
+              <span>{{ label }}</span>
+            </div>
+          </td>
+          <td><a href="{{ url_for('scraper_abyss_workflow', workflow_id=wf.workflow_id) }}" target="_blank" rel="noopener" class="wt-id-link">{{ wf.workflow_id }}</a></td>
+          <td class="wt-portal-tag">{{ wf.portal }}</td>
+          <td class="wt-type-tag">{{ wf.type }}</td>
+          <td>{{ wf.stage }}</td>
+          <td class="wt-timestamp">{{ wf.started_at or '--' }}</td>
+          <td class="wt-timestamp">{{ wf.updated_at or '--' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endmacro %}

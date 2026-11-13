@@ -1,0 +1,249 @@
+{#
+  job_odyssey.html — the ONE html file holding everything specific to
+  the Job Odyssey tab (header-bar content: title + description + filter
+  toolbar; log button content; and the full tab-content: stats strip,
+  undo toast, job list + detail split panel, pagination, activity log).
+  tab.html is the shared "transition stuff" skeleton used by all 4 tabs
+  (nav-cluster, header shell, log-btn shell, tab-content shell) — it
+  imports these three macros and calls each one at its matching slot,
+  only when current_key == 'job-odyssey':
+
+      {% from "fragments/job_odyssey.html" import jo_header, jo_log, jo_content %}
+      {{ jo_header() }}   -> inside .tab-header-bar
+      {{ jo_log() }}      -> inside #log-btn
+      {{ jo_content() }}  -> inside .tab-content
+
+  Behavior (load/filter/sort, select-a-job, status buttons, undo,
+  activity log) lives in js/job_odyssey_ui.js — this file is markup
+  only. Styling lives in css/job_odyssey_ui.css. Data comes from
+  py/jobodyssey_api.py -> py/jobodyssey_store.py (SQLite, jobodyssey.db)
+  — that store file is copied over unmodified; this dashboard only
+  reads whatever labels it returns and writes status changes back
+  through it, exactly like cv_content()/pnx_content() do for their
+  own tabs.
+#}
+
+{% macro jo_header() %}
+<div class="jo-header-inner">
+  <div class="jo-title-row">
+    <div class="jo-title">Job Odyssey</div>
+    <div class="jo-sub">Scanning distant boards, surfacing every opportunity worth the voyage.</div>
+  </div>
+  <div class="jo-tabs">
+    <button class="jo-btn-reload" id="jo-btn-reload">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 10-3 6.7"/><path d="M21 4v6h-6"/></svg>
+      Cosmic Reload
+    </button>
+    <button class="jo-btn-reload" id="jo-btn-export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+      Cosmic Cargo
+    </button>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro jo_log() %}
+<div class="jo-log-visual">
+  <span class="jo-log-count" id="jo-log-count">0</span>
+  <svg class="jo-log-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="3" width="14" height="19" rx="2.2"/>
+    <rect x="8.5" y="1.6" width="7" height="3" rx="1"/>
+    <line x1="8" y1="9" x2="8" y2="9"/><line x1="11" y1="9" x2="16" y2="9"/>
+    <line x1="8" y1="13" x2="8" y2="13"/><line x1="11" y1="13" x2="16" y2="13"/>
+    <line x1="8" y1="17" x2="8" y2="17"/><line x1="11" y1="17" x2="16" y2="17"/>
+  </svg>
+  <span class="jo-log-label">LOGS</span>
+</div>
+{% endmacro %}
+
+{% macro jo_content() %}
+<div class="jo-wrap">
+
+  <div class="jo-toolbar" id="jo-toolbar">
+    <div class="jo-dd" id="jo-dd-status" data-filter="status" data-value="" data-op="or">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        Status: <span class="jo-dd-val">All</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-pg-bar" id="jo-status-op-bar" style="margin-bottom:6px;">
+          <div class="jo-pg-item jo-pg-active" data-op="or" style="width:auto;border-radius:999px;padding:0 10px;">Match Any</div>
+          <div class="jo-pg-item" data-op="not" style="width:auto;border-radius:999px;padding:0 10px;">Match None</div>
+        </div>
+        <div class="jo-dd-opt jo-dd-selected" data-value="" data-all="1">All</div>
+        <div class="jo-dd-opt" data-value="scraped"><span class="jo-dd-dot" style="background:#8a90a6"></span>Scraped</div>
+        <div class="jo-dd-opt" data-value="eligible"><span class="jo-dd-dot" style="background:#4fe3a1"></span>Eligible</div>
+        <div class="jo-dd-opt" data-value="hold"><span class="jo-dd-dot" style="background:#ff9d42"></span>Hold</div>
+        <div class="jo-dd-opt" data-value="ineligible"><span class="jo-dd-dot" style="background:#ff5f6d"></span>Ineligible</div>
+        <div class="jo-dd-opt" data-value="blacklist"><span class="jo-dd-dot" style="background:#c99270"></span>Blacklist</div>
+        <div class="jo-dd-opt" data-value="applied"><span class="jo-dd-dot" style="background:#b98cff"></span>Applied</div>
+      </div>
+    </div>
+
+    <div class="jo-dd" id="jo-dd-portal" data-filter="portal" data-value="">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+        Portals: <span class="jo-dd-val">All</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-dd-opt jo-dd-selected" data-value="">All</div>
+      </div>
+    </div>
+
+    <div class="jo-dd" id="jo-dd-location" data-filter="location" data-value="">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Location: <span class="jo-dd-val">All</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-dd-opt jo-dd-selected" data-value="">All</div>
+      </div>
+    </div>
+
+    <div class="jo-dd" id="jo-dd-validation" data-filter="validation" data-value="">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        Validation: <span class="jo-dd-val">All</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-dd-opt jo-dd-selected" data-value="">All</div>
+        <div class="jo-dd-opt" data-value="valid"><span class="jo-dd-dot" style="background:#4fe3a1"></span>Valid</div>
+        <div class="jo-dd-opt" data-value="defect"><span class="jo-dd-dot" style="background:#ff5f6d"></span>Defect</div>
+      </div>
+    </div>
+
+    <div class="jo-dd" id="jo-dd-type" data-filter="type" data-value="">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Type: <span class="jo-dd-val">All</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-dd-opt jo-dd-selected" data-value="">All</div>
+        <div class="jo-dd-opt" data-value="internal"><span class="jo-dd-dot" style="background:#4ab8ff"></span>Internal</div>
+        <div class="jo-dd-opt" data-value="external"><span class="jo-dd-dot" style="background:#d65ac9"></span>External</div>
+        <div class="jo-dd-opt" data-value="others"><span class="jo-dd-dot" style="background:#8a90a6"></span>Others</div>
+      </div>
+    </div>
+
+    <div class="jo-search-wrap">
+      <svg class="jo-search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="jo-f-search" class="jo-search" placeholder="Search title or company…">
+    </div>
+
+    <div class="jo-dd" id="jo-dd-sort" data-filter="sort" data-value="date_desc">
+      <button type="button" class="jo-dd-trigger">
+        <svg class="jo-dd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M17 4v16m0 0l-3-3m3 3l3-3"/></svg>
+        Sort: <span class="jo-dd-val">Newest first</span><span class="jo-dd-chev">▾</span>
+      </button>
+      <div class="jo-dd-panel">
+        <div class="jo-dd-opt jo-dd-selected" data-value="date_desc">Newest first</div>
+        <div class="jo-dd-opt" data-value="date_asc">Oldest first</div>
+        <div class="jo-dd-opt" data-value="title_asc">Title A→Z</div>
+        <div class="jo-dd-opt" data-value="title_desc">Title Z→A</div>
+        <div class="jo-dd-opt" data-value="company_asc">Company A→Z</div>
+        <div class="jo-dd-opt" data-value="company_desc">Company Z→A</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="jo-stats" id="jo-stats">
+    <div class="jo-stat jo-blue" data-stat="total">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8 7.5V6a2 2 0 012-2h4a2 2 0 012 2v1.5"/><path d="M3 12h18"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-total">0</span><span class="jo-lbl">Total Jobs</span></div>
+    </div>
+    <div class="jo-stat jo-gray" data-stat="scraped">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 10l-4-4M15 10l4-4M9 14l-4 4M15 14l4 4"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-scraped">0</span><span class="jo-lbl">Scraped</span></div>
+    </div>
+    <div class="jo-stat jo-purple" data-stat="applied">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-applied">0</span><span class="jo-lbl">Applied</span></div>
+    </div>
+    <div class="jo-stat jo-red" data-stat="ineligible">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-ineligible">0</span><span class="jo-lbl">Ineligible</span></div>
+    </div>
+    <div class="jo-stat jo-brown" data-stat="blacklist">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3L12 3z"/><line x1="12" y1="10" x2="12" y2="14"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-blacklist">0</span><span class="jo-lbl">Blacklist</span></div>
+    </div>
+    <div class="jo-stat jo-green" data-stat="eligible">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-eligible">0</span><span class="jo-lbl">Eligible</span></div>
+    </div>
+    <div class="jo-stat jo-orange" data-stat="hold">
+      <svg class="jo-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <div class="jo-stat-text"><span class="jo-num" id="jo-stat-hold">0</span><span class="jo-lbl">Hold</span></div>
+    </div>
+  </div>
+
+  <div class="jo-undo-bar" id="jo-undo-bar" style="display:none">
+    <span class="jo-undo-icon">&#8634;</span>
+    <span class="jo-undo-text" id="jo-undo-text"></span>
+    <button class="jo-undo-btn" id="jo-undo-btn">Undo</button>
+  </div>
+
+  <div class="jo-split">
+    <div class="jo-list-pane">
+      <div class="jo-list-scroll" id="jo-list-scroll"></div>
+      <div id="jo-list-empty" class="jo-empty" style="display:none">No jobs match these filters.</div>
+      <div class="jo-pagination" id="jo-pagination"></div>
+    </div>
+
+    <div class="jo-detail-pane" id="jo-detail-pane">
+      <div class="jo-detail-empty" id="jo-detail-empty">Select a job from the list to see details here.</div>
+
+      <div class="jo-detail-body" id="jo-detail-body" style="display:none">
+        <h3 id="jo-d-title"></h3>
+        <div class="jo-detail-meta">
+          <span id="jo-d-company"></span>
+          <span id="jo-d-location"></span>
+          <span id="jo-d-id"></span>
+        </div>
+        <div class="jo-tags" id="jo-d-tags"></div>
+
+        <div class="jo-actions" id="jo-d-actions">
+          <a class="jo-act jo-act-view" id="jo-d-view" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>View
+          </a>
+          <button class="jo-act jo-act-eligible" data-status="eligible">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Eligible
+          </button>
+          <button class="jo-act jo-act-hold" data-status="hold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Hold
+          </button>
+          <button class="jo-act jo-act-ineligible" data-status="ineligible">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>Ineligible
+          </button>
+          <button class="jo-act jo-act-applied" data-status="applied">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>Applied
+          </button>
+        </div>
+
+        <div class="jo-desc-box" id="jo-d-desc"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="log-scroll-row"><button type="button" class="scroll-circle-btn" data-scroll="top" title="Jump to the top" aria-label="Jump to the top"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+  <div class="jo-panel jo-log-panel" id="jo-log-panel" style="display:none">
+    <div class="jo-panel-header">
+      <div class="jo-panel-title">Activity Log <span class="jo-pill" id="jo-log-list-count">0</span></div>
+      <span class="jo-log-note">This session only — not saved</span>
+      <button type="button" class="jo-log-download" id="jo-log-download" title="Download the whole activity log as a text file">Download</button>
+    </div>
+    <div class="jo-log-list" id="jo-log-list"></div>
+  </div>
+
+</div>
+
+<!-- Job list card template — job_odyssey_ui.js clones this per row
+     instead of building HTML strings in JS. -->
+<template id="jo-card-template">
+  <div class="jo-card" data-job-id="">
+    <h4 class="jo-card-title"></h4>
+    <div class="jo-card-sub"></div>
+    <div class="jo-tags jo-card-tags"></div>
+  </div>
+</template>
+{% endmacro %}

@@ -1,0 +1,140 @@
+{#
+  scraper_requests.html — Requests (Beacon) panel content for Scraper
+  Abyss. Kept in its own file per project convention: every substantial
+  piece of UI gets its own fragment + css + js set, same as
+  fragments/scraper_workflow_detail.html has its own set instead of
+  being folded into scraper_abyss.html/scraper_abyss_ui.css/
+  scraper_abyss_ui.js.
+
+  Redesigned (v3): plain pill chips, one accent color per section
+  (Engine=cyan, Portal=purple, Keywords=green, Location=yellow,
+  Blacklist=red) — same simple vocabulary as the rest of the app's
+  selectable pills/tags (Job Odyssey's status filter, badges), rather
+  than the earlier "chamber" design (an icon-ring node-socket fused
+  into a glass-tube label), which was a much busier, more mechanical
+  metaphor than anything else in the app uses. Still styled to match
+  the app's existing glass-panel look (rgba backgrounds, thin soft
+  borders, glow accents — same as .sa-panel/.cv-panel).
+  All classes namespaced .rq-* to avoid collision with the rest of
+  the app, same convention as .cv-*/.jo-*/.pnx-*/.sa-*.
+
+  Imported into sa_content() in scraper_abyss.html and rendered inside
+  #sa-panel-beacon (this form supplies its own card chrome via
+  .rq-hub — no outer .sa-panel wrapper needed here, same as before).
+  Behavior (chamber toggle/add/remove/select-all/reset) lives in
+  js/scraper_requests_ui.js; styling in css/scraper_requests_ui.css.
+#}
+{% macro sa_requests_form() %}
+
+<div class="rq-hub">
+
+  <div class="rq-header">
+    <div class="rq-title-row">
+      <h1 class="rq-title">Requests</h1>
+      <div class="rq-badge">Beacon Config</div>
+    </div>
+    <p class="rq-subtitle">Broadcasting queries across the cosmic network to summon new actions.</p>
+  </div>
+
+  <div class="rq-grid">
+
+    <!-- Engine — Cyan. Static, not seeded: Scraper keeps the bot/crawler
+         icon (fixed earlier — a globe fit Adzuna, not an engine), Descriptor
+         keeps its file icon. -->
+    <div class="rq-card rq-theme-cyan">
+      <div class="rq-card-head">
+        <span class="rq-card-title">Engine</span>
+        <button type="button" class="rq-select-all" data-target="rq-engine-chambers">Select all</button>
+      </div>
+      <div class="rq-chambers" id="rq-engine-chambers">
+        <div class="rq-chamber" data-chip="scraper">
+          <svg class="rq-chamber-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>
+          <span class="rq-step-label">Scraper</span>
+        </div>
+        <div class="rq-chamber" data-chip="descriptor">
+          <svg class="rq-chamber-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span class="rq-step-label">Descriptor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Portal — Purple. Static: Adzuna keeps its globe icon (fits a
+         web portal); JSearch gets a magnifier, JobsPipe a broadcast icon.
+         The label text must match the portal name the engine dispatches
+         on (workflow_engine._run_fetch_stage). -->
+    <div class="rq-card rq-theme-purple">
+      <div class="rq-card-head">
+        <span class="rq-card-title">Portal</span>
+        <button type="button" class="rq-select-all" data-target="rq-portal-chambers">Select all</button>
+      </div>
+      <div class="rq-chambers" id="rq-portal-chambers">
+        <div class="rq-chamber" data-chip="adzuna">
+          <svg class="rq-chamber-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span class="rq-step-label">Adzuna</span>
+        </div>
+        <div class="rq-chamber" data-chip="jsearch">
+          <svg class="rq-chamber-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="rq-step-label">JSearch</span>
+        </div>
+        <div class="rq-chamber" data-chip="jobspipe">
+          <svg class="rq-chamber-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1a10 10 0 0 1 0-14.2"></path><path d="M7.8 16.2a6 6 0 0 1 0-8.4"></path><circle cx="12" cy="12" r="1.5"></circle><path d="M16.2 7.8a6 6 0 0 1 0 8.4"></path><path d="M19.1 4.9a10 10 0 0 1 0 14.2"></path></svg>
+          <span class="rq-step-label">JobsPipe</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keywords — Green. JS-seeded (see scraper_requests_ui.js). Hidden
+         until a Portal is picked and Scraper engine is on (see
+         updateSectionVisibility() in scraper_requests_ui.js) — matches
+         source's cascading show/hide-until-picked sections. -->
+    <div class="rq-card rq-full-width rq-theme-green" id="rq-keywords-card" style="display:none">
+      <div class="rq-card-head">
+        <span class="rq-card-title">Keywords</span>
+        <button type="button" class="rq-select-all" data-target="rq-keywords-chambers">Select all</button>
+      </div>
+      <div class="rq-chambers" id="rq-keywords-chambers"></div>
+      <div class="rq-input-bar">
+        <input type="text" class="rq-input" id="rq-keywords-input" placeholder="Add custom keyword...">
+        <button type="button" class="rq-add-btn" data-add="rq-keywords-chambers" data-input="rq-keywords-input">Add</button>
+      </div>
+    </div>
+
+    <!-- Location — Yellow. JS-seeded. Hidden until Descriptor is on, or
+         Scraper is on AND at least one keyword is picked (chained). -->
+    <div class="rq-card rq-theme-yellow" id="rq-location-card" style="display:none">
+      <div class="rq-card-head">
+        <span class="rq-card-title">Location</span>
+        <button type="button" class="rq-select-all" data-target="rq-location-chambers">Select all</button>
+      </div>
+      <div class="rq-chambers" id="rq-location-chambers"></div>
+      <div class="rq-input-bar">
+        <input type="text" class="rq-input" id="rq-location-input" placeholder="Add custom location...">
+        <button type="button" class="rq-add-btn" data-add="rq-location-chambers" data-input="rq-location-input">Add</button>
+      </div>
+    </div>
+
+    <!-- Blacklist Filter — Red. JS-seeded. Scraper-only, optional, shown
+         once Location appears. -->
+    <div class="rq-card rq-theme-red" id="rq-blacklist-card" style="display:none">
+      <div class="rq-card-head">
+        <span class="rq-card-title">Blacklist Filter</span>
+        <button type="button" class="rq-select-all" data-target="rq-blacklist-chambers">Select all</button>
+      </div>
+      <div class="rq-chambers" id="rq-blacklist-chambers"></div>
+      <div class="rq-input-bar">
+        <input type="text" class="rq-input" id="rq-blacklist-input" placeholder="Add excluded keyword...">
+        <button type="button" class="rq-add-btn" data-add="rq-blacklist-chambers" data-input="rq-blacklist-input">Add</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="rq-footer">
+    <button type="button" class="rq-reset-btn">Reset</button>
+    <button type="button" class="rq-broadcast-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"></path><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path></svg>
+      <span>Broadcast Query</span>
+    </button>
+  </div>
+</div>
+{% endmacro %}

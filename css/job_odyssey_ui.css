@@ -1,0 +1,546 @@
+/* job_odyssey_ui.css — Job Odyssey tab page: header-bar content
+   (title + description + filter toolbar), the log button + activity
+   log panel, and the job list/detail dashboard (stats, split panel,
+   badges, pagination, undo toast).
+
+   Fills the two placeholders left empty in tab.html/tab.css
+   (.tab-header-bar, .log-btn — see the comments there) plus the
+   .tab-content area, but ONLY for this tab: everything here is scoped
+   under .tab-body[data-current-planet="job-odyssey"] so it never
+   affects the other 3 tab pages, which share the same tab.html/tab.css
+   skeleton. Injected server-side via the jo_header()/jo_log()/jo_content()
+   macros in fragments/job_odyssey.html; behavior wired up by
+   js/job_odyssey_ui.js.
+
+   Namespaced --jo-* custom properties on purpose, so nothing here
+   collides with --space-bg/--text-primary/etc. (base.css) or the
+   --cv-* / --pnx-* prefixes (career_voyager_ui.css / profile_nexus_ui.css).
+
+   Unlike Career Voyager/Profile Nexus, this tab's header-bar is NOT
+   given a narrower left/right override — it needs the full default
+   width (tab.css: left 272px, right 96px) to fit 5 filter selects +
+   search + sort + reload in one row. The log button also keeps its
+   default right:6px position from tab.css; only its color/cursor/
+   layout are restyled here.
+
+   NOTE: this used to declare --jo-* custom properties (--jo-gold,
+   --jo-text, etc.) and reference them via var(...) everywhere below.
+   That silently failed for several of them in this project's actual
+   cascade (proven with a literal-red test — the icon color was falling
+   back to the inherited body color instead of resolving the variable),
+   so every var(--jo-*) below has been replaced with its literal value
+   instead. Kept as plain hex/rgba throughout — don't reintroduce
+   var(--jo-*) here without re-testing that it actually resolves. */
+
+/* Scrollbar color for this tab. Scoped to body (not .tab-body) since
+   <body> is the actual scroll container (see base.css) and is an
+   ANCESTOR of .tab-body — a variable set only on .tab-body can't
+   reach body's own scrollbar. */
+body[data-page-key="job-odyssey"] {
+  --scroll-thumb: #ffd98a;
+  --scroll-thumb-hover: #ffe6b3;
+}
+
+/* ── Header bar: title + description + Cosmic Reload. Position/size
+   pulled EXACTLY from career_voyager_ui.css / profile_nexus_ui.css —
+   both override the shared tab.css default identically
+   (left:272/right:96 -> left:208/right:260), so this matches both,
+   not a guess. ── */
+.tab-body[data-current-planet="job-odyssey"] .tab-header-bar {
+  left: 208px;
+  right: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.jo-header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.jo-title-row { text-align: center; }
+/* 22px/700 matches Career Voyager's .cv-title exactly (Profile Nexus
+   uses a bigger 30px h1 instead — the two tabs aren't identical here,
+   this follows Career Voyager as the closer structural match). */
+.jo-title { font-size: 22px; font-weight: 700; letter-spacing: .3px; color: #eef1fa; font-family: 'Segoe UI', system-ui, sans-serif; }
+.jo-sub { font-size: 12.5px; color: #9aa3bd; max-width: 440px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ── Filter toolbar (top of tab-content, not the header-bar). Layout
+   (flex/gap/margin) still matches Career Voyager's .cv-toolbar. But
+   Career's filters use native <select> — which can't be restyled once
+   open (browser renders the options list, not CSS), so the earlier
+   approved dropdown-panel design (colored dots, dark panel, gold
+   highlight) never actually appeared. These are custom div-based
+   dropdowns instead, driven by job_odyssey_ui.js, so the open panel
+   is fully styleable. ── */
+.jo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.jo-dd { position: relative; }
+.jo-dd-trigger {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(232,185,35,0.22);
+  color: #9aa3bd;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+  outline: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap;
+}
+.jo-dd-trigger:hover { border-color: rgba(232,185,35,0.55); }
+.jo-dd.jo-dd-open .jo-dd-trigger { border-color: #e8b923; box-shadow: 0 0 0 1px rgba(232,185,35,0.15); }
+.jo-dd-ic { width: 13px; height: 13px; color: #e8b923; flex-shrink: 0; }
+.jo-dd-val { color: #eef1fa; font-weight: 600; }
+.jo-dd-chev { font-size: 9px; color: #e8b923; margin-left: 1px; transition: transform .15s ease; }
+.jo-dd.jo-dd-open .jo-dd-chev { transform: rotate(180deg); }
+
+.jo-dd-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #1c1e24, #101115);
+  border: 1px solid rgba(232,185,35,0.35);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.55), 0 0 18px -4px rgba(232,185,35,0.3);
+  z-index: 30;
+}
+.jo-dd.jo-dd-open .jo-dd-panel { display: block; }
+.jo-dd-opt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d6d6db;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.jo-dd-opt:hover { background: rgba(232,185,35,0.12); color: #fff; }
+.jo-dd-opt.jo-dd-selected { background: rgba(232,185,35,0.18); color: #e8b923; }
+.jo-dd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.jo-dd-dot.jo-dd-dashed { background: transparent; border: 1.5px dashed #e8b923; }
+
+.jo-search-wrap {
+  flex: 1;
+  min-width: 180px;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(232,185,35,0.22);
+  padding: 9px 14px;
+  border-radius: 10px;
+}
+.jo-search-wrap:focus-within { border-color: #e8b923; }
+.jo-search-ic { width: 13px; height: 13px; color: #e8b923; flex-shrink: 0; }
+.jo-search {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #eef1fa;
+  padding: 0;
+  font-size: 12.5px;
+  outline: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.jo-search::placeholder { color: #9aa3bd; }
+
+/* Outer frame — same as Career Voyager's .cv-tabs wrapper (the darker
+   rounded capsule that Applications/Job Sites sit inside), just holding
+   one button here instead of two. */
+.jo-tabs {
+  display: inline-flex; gap: 8px; margin-top: 6px;
+  padding: 5px; width: fit-content;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 26px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Same structure as Career Voyager's .cv-tab.cv-active-amber pill
+   button — just re-colored with --jo-gold instead of amber. Not a
+   custom design; this is the real button component from the other
+   tab, recolored. */
+.jo-btn-reload {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 15px;
+  background: linear-gradient(180deg, rgba(232,185,35,0.15) 0%, rgba(180,120,10,0.1) 100%);
+  border: 1px solid rgba(232,185,35,0.6);
+  border-radius: 20px;
+  color: #fdf0c9;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all .2s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-shadow: 0 0 14px rgba(232,185,35,0.2);
+  flex-shrink: 0;
+}
+.jo-btn-reload:hover {
+  background: linear-gradient(180deg, rgba(232,185,35,0.22) 0%, rgba(180,120,10,0.16) 100%);
+  border-color: rgba(232,185,35,0.85);
+  box-shadow: 0 0 18px rgba(232,185,35,0.32);
+}
+.jo-btn-reload svg { width: 14px; height: 14px; stroke: #fbbf24; transition: stroke .2s ease; }
+.jo-btn-reload.jo-spinning svg { animation: jo-spin .7s linear infinite; }
+@keyframes jo-spin { to { transform: rotate(360deg); } }
+
+/* ── Log button (fills the shared .log-btn placeholder). Position
+   (right:160px) pulled EXACTLY from career_voyager_ui.css /
+   profile_nexus_ui.css — both override the shared tab.css default
+   (right:6px) identically, "pulled left, right after the header bar". ── */
+.tab-body[data-current-planet="job-odyssey"] .log-btn {
+  right: 160px;
+  color: initial;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.jo-log-visual {
+  position: relative;
+  width: 64px; height: 78px;
+  background: radial-gradient(120% 100% at 50% 20%, #241c0a 0%, #0d0a03 75%);
+  border: 1.5px solid rgba(232,185,35,0.5);
+  border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 16px rgba(232,185,35,0.18), inset 0 0 10px rgba(232,185,35,0.08);
+  transition: box-shadow .18s, border-color .18s, transform .1s;
+}
+.tab-body[data-current-planet="job-odyssey"] .log-btn:hover .jo-log-visual {
+  box-shadow: 0 0 22px rgba(232,185,35,0.32), inset 0 0 12px rgba(232,185,35,0.12);
+  border-color: rgba(232,185,35,0.75);
+  transform: translateY(-1px);
+}
+.log-btn.jo-open .jo-log-visual {
+  border-color: #ffd35c;
+  box-shadow: 0 0 26px rgba(232,185,35,0.5), inset 0 0 14px rgba(232,185,35,0.16);
+}
+.jo-log-icon { width: 26px; height: 26px; color: #ffd98a; filter: drop-shadow(0 0 5px rgba(232,185,35,0.5)); }
+.jo-log-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #ffe9b0; }
+.jo-log-count {
+  position: absolute; top: -7px; right: -7px;
+  background: #ff5f6d; color: #fff; font-size: 10px; font-weight: 700;
+  min-width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #05060c; z-index: 2;
+}
+.jo-log-count[data-empty="1"] { display: none; }
+
+/* ── Content area ── */
+.tab-body[data-current-planet="job-odyssey"] .tab-content {
+  display: block;
+  align-items: initial;
+  margin-top: -20px;
+  padding: 0 24px 48px;
+}
+.jo-wrap { max-width: 1400px; margin: 0 auto; }
+
+/* ── Stats strip ── */
+/* ── Stats strip: riveted single-strip design (approved chat preview),
+   not the individual-card style. Transparent single bordered strip
+   with metal "rivet" connectors between segments, content centered
+   within each segment — reverted from the Career-Voyager-style
+   individual cards back to the originally approved mockup. ── */
+.jo-stats {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.28);
+  border-radius: 14px;
+  padding: 0 4px;
+}
+.jo-stat {
+  position: relative;
+  flex: 1 1 0;
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 14px 10px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.jo-stat + .jo-stat::after {
+  content: "";
+  position: absolute;
+  left: -1.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 65%;
+  background: rgba(255,255,255,0.28);
+  border-radius: 3px;
+  z-index: 1;
+}
+.jo-stat + .jo-stat::before {
+  content: "";
+  position: absolute;
+  left: -6.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 20px;
+  background: #5a5e67;
+  border: 1px solid #26282d;
+  border-top: 1px solid #7c8089;
+  border-radius: 6px;
+  z-index: 2;
+}
+.jo-stat-icon { flex-shrink: 0; width: 22px; height: 22px; opacity: .9; }
+.jo-stat-text { display: flex; flex-direction: column; text-align: left; }
+.jo-num { font-size: 20px; font-weight: 700; line-height: 1; }
+.jo-lbl { font-size: 9px; color: #b5b5bd; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.jo-stat.jo-blue .jo-num, .jo-stat.jo-blue .jo-stat-icon { color: #4ab8ff; }
+.jo-stat.jo-gray .jo-num, .jo-stat.jo-gray .jo-stat-icon { color: #8a90a6; }
+.jo-stat.jo-purple .jo-num, .jo-stat.jo-purple .jo-stat-icon { color: #b98cff; }
+.jo-stat.jo-red .jo-num, .jo-stat.jo-red .jo-stat-icon { color: #ff5f6d; }
+.jo-stat.jo-brown .jo-num, .jo-stat.jo-brown .jo-stat-icon { color: #c99270; }
+.jo-stat.jo-green .jo-num, .jo-stat.jo-green .jo-stat-icon { color: #4fe3a1; }
+.jo-stat.jo-orange .jo-num, .jo-stat.jo-orange .jo-stat-icon { color: #ff9d42; }
+.jo-stat.jo-gold .jo-num, .jo-stat.jo-gold .jo-stat-icon { color: #e8b923; }
+
+@media (max-width: 1100px) {
+  .jo-stats { flex-wrap: wrap; }
+  .jo-stat { flex: 1 1 25%; }
+}
+
+/* ── Undo toast ── */
+.jo-undo-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(180deg, #211a0c, #161206);
+  border: 1px solid rgba(232,185,35,0.4);
+  border-radius: 12px;
+  padding: 9px 16px;
+  margin-bottom: 14px;
+}
+.jo-undo-icon { color: #e8b923; font-size: 15px; flex-shrink: 0; }
+.jo-undo-text { flex: 1; font-size: 12.5px; color: #e8e2d0; font-family: 'Segoe UI', system-ui, sans-serif; }
+.jo-undo-text strong { color: #ffd35c; }
+.jo-undo-btn {
+  background: linear-gradient(180deg,#f4c430,#c9970f);
+  color: #241a00;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.jo-undo-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 14px -4px rgba(244,196,48,0.55);
+}
+.jo-undo-btn:active {
+  transform: translateY(0) scale(.96);
+  filter: brightness(.96);
+  transition-duration: .05s;
+}
+
+/* ── Split panel: job list + detail ── */
+.jo-split {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  height: 1035px; /* exactly 10 job cards (98px each, measured) + the 55px pagination bar — scroll only kicks in past 10 */
+  margin-bottom: 16px;
+}
+.jo-list-pane {
+  flex: 0 0 380px;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.jo-list-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+.jo-empty { padding: 24px; text-align: center; color: #9aa3bd; font-size: 13px; }
+
+.jo-card {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: background .12s ease;
+}
+.jo-card:hover { background: rgba(255,255,255,0.03); }
+.jo-card.jo-selected { background: rgba(232,185,35,0.08); border-left: 3px solid #e8b923; }
+.jo-card-title {
+  font-size: 13.5px; font-weight: 600; color: #eef1fa; margin-bottom: 3px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+} /* wraps to a 2nd line for long titles — that card is just taller
+     than the others, "10 cards" is a target, not a hard guarantee */
+.jo-card-sub {
+  font-size: 11.5px; color: #9aa3bd; margin-bottom: 7px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.jo-pagination { border-top: 1px solid rgba(255,255,255,0.12); padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: nowrap; }
+.jo-pg-bar { display: flex; align-items: center; gap: 3px; background: linear-gradient(180deg,#2a2d34,#1a1c21); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; padding: 4px; }
+.jo-pg-item, .jo-pg-arrow {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #d6d6db;
+  background: #33363d; cursor: pointer; flex-shrink: 0;
+}
+.jo-pg-arrow { background: transparent; color: #9aa3bd; }
+.jo-pg-item.jo-pg-active { background: linear-gradient(180deg,#ffd98a,#ffe6b3); color: #241a00; }
+.jo-pg-dots { width: 16px; text-align: center; color: #9aa3bd; font-size: 11px; }
+.jo-pg-count { font-size: 11px; color: #9aa3bd; white-space: nowrap; }
+
+/* ── Detail pane ── */
+.jo-detail-pane {
+  flex: 1 1 0;
+  padding: 20px 24px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.jo-detail-empty { color: #9aa3bd; font-size: 13px; padding: 40px 0; text-align: center; }
+.jo-detail-body h3 { font-size: 18px; font-weight: 700; color: #eef1fa; margin-bottom: 6px; font-family: 'Segoe UI', system-ui, sans-serif; }
+.jo-detail-meta { font-size: 12px; color: #9aa3bd; margin-bottom: 10px; }
+.jo-detail-meta span { margin-right: 12px; }
+
+/* ── Badges (status / validation / link-type / duplicate) — shared
+   .jo-tags container used both on list cards and the detail pane ── */
+.jo-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.jo-card .jo-tags { flex-wrap: nowrap; overflow: hidden; }
+/* list cards only (not the detail pane, which is wide enough to wrap
+   normally) — keeps a 5-badge card (with Duplicate) the same height
+   as a 4-badge one, instead of wrapping to a second row */
+.jo-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid; letter-spacing: .2px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.jo-tag.jo-src { background: rgba(245,166,35,0.18); color: #ffb84d; border-color: rgba(245,166,35,0.4); }
+.jo-tag.jo-valid { background: rgba(79,227,161,0.18); color: #5eeba8; border-color: rgba(79,227,161,0.4); }
+.jo-tag.jo-defect { background: rgba(255,95,109,0.18); color: #ff8a9a; border-color: rgba(255,95,109,0.4); }
+.jo-tag.jo-internal { background: rgba(74,184,255,0.18); color: #7fabff; border-color: rgba(74,184,255,0.4); }
+.jo-tag.jo-external { background: rgba(214,90,201,0.18); color: #ea9fe0; border-color: rgba(214,90,201,0.4); }
+.jo-tag.jo-others { background: rgba(138,144,166,0.15); color: #c4c8d1; border-color: rgba(138,144,166,0.4); }
+.jo-tag.jo-duplicate { background: rgba(232,185,35,0.08); color: #e8b923; border: 1px dashed rgba(232,185,35,0.55); }
+.jo-tag.jo-status-scraped { background: rgba(138,144,166,0.15); color: #c4c8d1; border-color: rgba(138,144,166,0.4); }
+.jo-tag.jo-status-eligible { background: rgba(79,227,161,0.18); color: #5eeba8; border-color: rgba(79,227,161,0.4); }
+.jo-tag.jo-status-hold { background: rgba(255,157,66,0.18); color: #ffc182; border-color: rgba(255,157,66,0.4); }
+.jo-tag.jo-status-ineligible { background: rgba(255,95,109,0.18); color: #ff8a9a; border-color: rgba(255,95,109,0.4); }
+.jo-tag.jo-status-blacklist { background: rgba(201,146,112,0.22); color: #e0b79c; border-color: rgba(201,146,112,0.5); }
+.jo-tag.jo-status-applied { background: rgba(185,140,255,0.18); color: #c9a3ff; border-color: rgba(185,140,255,0.4); }
+
+/* ── Action buttons ── */
+.jo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+/* Same structural recipe as .jo-btn-reload (Cosmic Reload / Cosmic
+   Cargo) above — tinted gradient fill, 1px colored border, colored
+   glow, colored icon+text — just recolored per status instead of gold
+   for every button. Replaces the earlier white-glass attempt entirely. */
+.jo-act {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 15px; border-radius: 20px;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; outline: none;
+  text-decoration: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: all .2s ease;
+  flex-shrink: 0;
+}
+.jo-act svg { width: 14px; height: 14px; transition: stroke .2s ease; }
+.jo-act:active { transform: translateY(1px); }
+
+.jo-act-view {
+  background: linear-gradient(180deg, rgba(180,186,204,0.32) 0%, rgba(110,116,132,0.22) 100%);
+  border: 1.5px solid rgba(180,186,204,0.8); color: #f2f3f8;
+  box-shadow: 0 0 16px rgba(180,186,204,0.35);
+}
+.jo-act-view:hover { background: linear-gradient(180deg, rgba(180,186,204,0.42) 0%, rgba(110,116,132,0.3) 100%); border-color: rgba(180,186,204,1); box-shadow: 0 0 22px rgba(180,186,204,0.5); }
+.jo-act-view svg { stroke: #dfe2ec; }
+
+.jo-act-eligible {
+  background: linear-gradient(180deg, rgba(34,197,94,0.34) 0%, rgba(21,128,61,0.24) 100%);
+  border: 1.5px solid rgba(52,211,110,0.85); color: #eafff2;
+  box-shadow: 0 0 16px rgba(34,197,94,0.4);
+}
+.jo-act-eligible:hover { background: linear-gradient(180deg, rgba(34,197,94,0.44) 0%, rgba(21,128,61,0.32) 100%); border-color: rgba(52,211,110,1); box-shadow: 0 0 22px rgba(34,197,94,0.55); }
+.jo-act-eligible svg { stroke: #5eff9e; }
+
+.jo-act-hold {
+  background: linear-gradient(180deg, rgba(245,158,11,0.34) 0%, rgba(180,120,10,0.24) 100%);
+  border: 1.5px solid rgba(251,177,55,0.85); color: #fff3dc;
+  box-shadow: 0 0 16px rgba(245,158,11,0.4);
+}
+.jo-act-hold:hover { background: linear-gradient(180deg, rgba(245,158,11,0.44) 0%, rgba(180,120,10,0.32) 100%); border-color: rgba(251,177,55,1); box-shadow: 0 0 22px rgba(245,158,11,0.55); }
+.jo-act-hold svg { stroke: #ffca4d; }
+
+.jo-act-ineligible {
+  background: linear-gradient(180deg, rgba(239,68,68,0.34) 0%, rgba(153,27,27,0.24) 100%);
+  border: 1.5px solid rgba(255,99,99,0.85); color: #ffe9e9;
+  box-shadow: 0 0 16px rgba(239,68,68,0.4);
+}
+.jo-act-ineligible:hover { background: linear-gradient(180deg, rgba(239,68,68,0.44) 0%, rgba(153,27,27,0.32) 100%); border-color: rgba(255,99,99,1); box-shadow: 0 0 22px rgba(239,68,68,0.55); }
+.jo-act-ineligible svg { stroke: #ff8a8a; }
+
+.jo-act-applied {
+  background: linear-gradient(180deg, rgba(139,92,246,0.34) 0%, rgba(91,33,182,0.24) 100%);
+  border: 1.5px solid rgba(167,139,250,0.85); color: #f3eeff;
+  box-shadow: 0 0 16px rgba(139,92,246,0.4);
+}
+.jo-act-applied:hover { background: linear-gradient(180deg, rgba(139,92,246,0.44) 0%, rgba(91,33,182,0.32) 100%); border-color: rgba(167,139,250,1); box-shadow: 0 0 22px rgba(139,92,246,0.55); }
+.jo-act-applied svg { stroke: #bda3ff; }
+
+.jo-act.jo-act-current { box-shadow: 0 0 0 2px currentColor, 0 0 18px rgba(255,255,255,0.3); }
+
+.jo-desc-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 22px 26px;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #d4d4d8;
+  white-space: pre-line;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Activity log panel ── */
+.jo-panel { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; overflow: hidden; }
+.jo-panel-header { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.jo-panel-title { font-size: 14px; font-weight: 700; color: #eef1fa; font-family: 'Segoe UI', system-ui, sans-serif; }
+.jo-pill { background: rgba(232,185,35,0.15); color: #e8b923; border: 1px solid rgba(232,185,35,0.35); font-size: 10.5px; font-weight: 800; padding: 2px 9px; border-radius: 999px; }
+.jo-log-note { margin-left: auto; font-size: 11px; color: #9aa3bd; }
+.jo-log-download { font-size: 12px; font-weight: 600; color: #4aa8ee; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(32,146,229,0.35); background: rgba(32,146,229,0.10); cursor: pointer; }
+.jo-log-download:hover { background: rgba(32,146,229,0.20); color: #eef1fa; }
+.jo-log-list { max-height: 220px; overflow-y: auto; }
+.jo-log-entry { padding: 9px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #c8c8ce; font-family: 'Courier New', monospace; }
+.jo-log-entry:last-child { border-bottom: none; }
+.jo-log-entry .jo-log-time { color: #e8b923; margin-right: 10px; font-weight: 700; }
+.jo-log-more {
+  display: block; width: calc(100% - 40px); margin: 10px 20px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,217,138,0.35);
+  color: #ffd98a; font-size: 12px; font-weight: 700;
+  padding: 8px; border-radius: 8px; cursor: pointer;
+}
+.jo-log-more:hover { background: rgba(255,217,138,0.14); border-color: #ffe6b3; color: #ffe6b3; }

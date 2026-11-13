@@ -1,0 +1,71 @@
+/* ---- Page transition system (home <-> tab warp overlay + return button) ---- */
+/* transition.css — shared warp-transition overlay used when navigating
+   from the Solaris home page into a planet's tab, and back again.
+   Include on every page (home + each tab) that uses transition.js. */
+
+.solaris-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #05060c;
+  clip-path: circle(0px at 50% 50%);
+  pointer-events: none;
+}
+
+/* Optional starfield-streak layer for extra "warp speed" feel — purely
+   decorative, safe to ignore if you don't add the child div. */
+.solaris-transition-overlay .warp-streaks {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.04) 0deg 2deg,
+      transparent 2deg 8deg
+    );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.solaris-transition-overlay.is-active .warp-streaks {
+  opacity: 1;
+  animation: warp-spin 0.75s linear;
+}
+
+@keyframes warp-spin {
+  from { transform: scale(0.3) rotate(0deg); }
+  to   { transform: scale(2.2) rotate(35deg); }
+}
+
+/* A simple "Back to Solaris" button style, for tab pages to reuse —
+   see transition.html for the markup this pairs with. */
+.solaris-return-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 10, 20, 0.6);
+  backdrop-filter: blur(6px);
+  color: #e8e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.solaris-return-btn:hover {
+  background: rgba(20, 20, 40, 0.8);
+  transform: translateY(-1px);
+}
+.solaris-return-btn .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde68a, #f97316);
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.7);
+}

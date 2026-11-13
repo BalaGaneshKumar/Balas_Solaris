@@ -1,0 +1,230 @@
+/* profile_nexus_ui.css — Profile Nexus tab page: header-bar content
+   (title + description + Save pill), the log button + activity log
+   panel, and the personal-data form (sub-nav + sub-pages).
+
+   Fills the two placeholders left empty in tab.html/tab.css
+   (.tab-header-bar, .log-btn — see the comments there) plus the
+   .tab-content area, but ONLY for this tab: everything here is scoped
+   under .tab-body[data-current-planet="profile-nexus"] so it never
+   affects the other 3 tab pages, which share the same tab.html/tab.css
+   skeleton. Injected via js/profile_nexus_ui.js (see that file for why
+   this can't just be static markup in tab.html).
+
+   Namespaced --pnx-* custom properties on purpose, so nothing here
+   collides with the --space-bg/--text-primary/etc. tokens already
+   defined in base.css. */
+
+.tab-body[data-current-planet="profile-nexus"] {
+  --pnx-panel: rgba(255,255,255,0.05);
+  --pnx-panel-strong: rgba(255,255,255,0.09);
+  --pnx-border: rgba(255,255,255,0.14);
+  --pnx-text: #eef1f5;
+  --pnx-text-dim: #9a9ea8;
+  --pnx-silver: #c7ccd6;
+  --pnx-silver-bright: #eef1f5;
+}
+/* Scrollbar color scoped to body, not .tab-body — <body> is the actual
+   scroll container (see base.css) and is an ANCESTOR of .tab-body, so
+   a variable set only there can't reach body's own scrollbar. Hardcoded
+   here (not var(--pnx-silver)) for the same reason — that variable
+   lives on .tab-body, a descendant of body, unreadable from here.
+   Matches the existing silver palette above. */
+body[data-page-key="profile-nexus"] {
+  --scroll-thumb: #c7ccd6;
+  --scroll-thumb-hover: #eef1f5;
+}
+
+/* ── Header bar: title + description + Save ── */
+.tab-body[data-current-planet="profile-nexus"] .tab-header-bar {
+  left: 208px; /* was 272px in tab.css — pulled closer to the cluster (cluster-big ends at 200px) */
+  right: 260px; /* narrower box so the log button (also pulled left below) sits right after it */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ── Title/description: same structure & sizing as Career Voyager's
+   .cv-header-inner/.cv-title/.cv-sub — copied over, not re-derived. ── */
+.pnx-title-panel { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+.pnx-title-panel h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: .3px; color: var(--pnx-text); font-family: 'Segoe UI', system-ui, sans-serif; }
+.pnx-title-panel p { margin: 0; font-size: 12.5px; color: var(--pnx-text-dim); max-width: 440px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* Same .cv-tabs/.cv-tab structure as Career Voyager — outer frame +
+   pill button, just recolored with Profile Nexus's silver palette
+   instead of Career's amber. */
+.pnx-tabs {
+  display: inline-flex; gap: 8px; margin-top: 6px;
+  padding: 5px; width: fit-content;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 26px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.pnx-save-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 15px;
+  background: linear-gradient(180deg, rgba(199,204,214,0.15) 0%, rgba(120,128,145,0.1) 100%);
+  border: 1px solid rgba(199,204,214,0.6);
+  border-radius: 20px;
+  color: var(--pnx-silver-bright);
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; outline: none;
+  transition: all .2s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-shadow: 0 0 14px rgba(199,204,214,0.2);
+}
+.pnx-save-btn:hover {
+  background: linear-gradient(180deg, rgba(199,204,214,0.22) 0%, rgba(120,128,145,0.16) 100%);
+  border-color: rgba(199,204,214,0.85);
+  box-shadow: 0 0 18px rgba(199,204,214,0.32);
+}
+.pnx-save-btn:active { transform: scale(0.98); }
+.pnx-tab-icon { width: 14px; height: 14px; stroke: var(--pnx-silver-bright); transition: stroke .2s ease; }
+.pnx-save-btn .pnx-pill-inner { display: block; }
+.pnx-save-msg { margin-top: 6px; display: block; font-size: 11.5px; color: var(--pnx-silver); }
+
+/* ── Log button (fills the empty, disabled .log-btn placeholder) ──
+   Design ported from Career Voyager's log button (bordered box + SVG
+   document icon), recolored to Profile Nexus's silver/black theme
+   instead of Career's orange. */
+.tab-body[data-current-planet="profile-nexus"] .log-btn {
+  right: 160px; /* was 6px in tab.css — pulled left, right after the header bar */
+  color: initial;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pnx-log-visual {
+  position: relative;
+  width: 64px; height: 78px;
+  background: radial-gradient(120% 100% at 50% 20%, #1c1e22 0%, #08090a 75%);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 16px rgba(255,255,255,0.15), inset 0 0 10px rgba(255,255,255,0.06);
+  transition: box-shadow .18s, border-color .18s, transform .1s;
+}
+.tab-body[data-current-planet="profile-nexus"] .log-btn:hover .pnx-log-visual {
+  box-shadow: 0 0 22px rgba(255,255,255,0.28), inset 0 0 12px rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.65);
+  transform: translateY(-1px);
+}
+.log-btn.pnx-open .pnx-log-visual {
+  border-color: var(--pnx-silver-bright);
+  box-shadow: 0 0 26px rgba(255,255,255,0.45), inset 0 0 14px rgba(255,255,255,0.14);
+}
+.pnx-log-icon { width: 26px; height: 26px; color: var(--pnx-silver); filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); }
+.pnx-log-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--pnx-silver-bright); font-family: 'Segoe UI', system-ui, sans-serif; }
+.pnx-log-badge {
+  position: absolute; top: -7px; right: -7px;
+  background: var(--pnx-silver-bright); color: #0c0d10; font-size: 10px; font-weight: 700;
+  min-width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #05060c; z-index: 2;
+}
+.pnx-log-badge[data-empty="1"] { display: none; }
+
+/* ── Content area: sub-nav tabs + sub-pages ── */
+.tab-body[data-current-planet="profile-nexus"] .tab-content {
+  display: block;
+  align-items: initial;
+  margin-top: -20px;
+  padding: 0 28px 60px;
+}
+.pnx-sub-nav {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  padding: 4px 0 20px;
+}
+.pnx-sub-nav button {
+  padding: 8px 16px; font-size: 12.5px; border-radius: 20px;
+  border: 1px solid var(--pnx-border); background: var(--pnx-panel); color: var(--pnx-text-dim);
+  backdrop-filter: blur(10px); cursor: pointer; white-space: nowrap;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.pnx-sub-nav button.active {
+  color: #0c0d10; font-weight: 600;
+  background: linear-gradient(135deg, var(--pnx-silver-bright), var(--pnx-silver));
+  border-color: transparent;
+  box-shadow: 0 0 16px rgba(255,255,255,0.35);
+}
+
+.pnx-sub-page { display: none; }
+.pnx-sub-page.active { display: block; }
+.pnx-form-section {
+  max-width: 1240px; margin: 0 auto;
+  background: var(--pnx-panel); border: 1px solid var(--pnx-border); border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(130%);
+  padding: 20px 24px;
+}
+.pnx-form-section h2 {
+  font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; color: var(--pnx-silver);
+  margin: 0 0 16px; border-bottom: 1px solid rgba(255,255,255,0.18); padding-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.pnx-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+.pnx-form-group.full-width { grid-column: 1 / -1; }
+.pnx-form-group label {
+  display: block; font-size: 11.5px; color: var(--pnx-text-dim); margin-bottom: 4px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.pnx-form-group input, .pnx-form-group select, .pnx-form-group textarea {
+  width: 100%; padding: 8px 10px; font-size: 12.5px; color: var(--pnx-text); font-family: inherit;
+  background: var(--pnx-panel-strong); border: 1px solid var(--pnx-border); border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+.pnx-form-group input:focus, .pnx-form-group select:focus, .pnx-form-group textarea:focus {
+  outline: none; border-color: var(--pnx-silver); box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+}
+.pnx-form-group textarea { resize: vertical; min-height: 70px; }
+
+.pnx-job-card {
+  background: var(--pnx-panel-strong); border: 1px solid var(--pnx-border); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 12px;
+}
+.pnx-job-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.pnx-job-card-head strong { font-size: 13px; color: var(--pnx-text); }
+.pnx-remove-btn {
+  background: rgba(226,75,74,0.18); color: #ffb0af; font-size: 11px;
+  border: 1px solid rgba(226,75,74,0.4); border-radius: 8px; padding: 4px 10px; cursor: pointer;
+}
+.pnx-add-job-btn {
+  background: rgba(255,255,255,0.12); color: var(--pnx-silver-bright); font-size: 11px;
+  border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 4px 10px; cursor: pointer;
+}
+
+.pnx-log-panel {
+  display: none;
+  max-width: 1240px; margin: 20px auto 0;
+  background: var(--pnx-panel); border: 1px solid var(--pnx-border); border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(130%);
+  padding: 18px 22px;
+}
+.pnx-log-panel.open { display: block; }
+.pnx-log-panel h2 {
+  font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; color: var(--pnx-silver);
+  margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.pnx-log-pill {
+  font-size: 10.5px; padding: 2px 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.12); color: var(--pnx-silver-bright); border: 1px solid rgba(255,255,255,0.3);
+}
+.pnx-log-note { margin-left: auto; font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--pnx-text-dim); }
+.pnx-log-download { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--pnx-silver-bright); padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); cursor: pointer; }
+.pnx-log-download:hover { background: rgba(255,255,255,0.18); }
+.pnx-log-refresh { margin-left: 0; background: none; border: none; color: var(--pnx-text-dim); cursor: pointer; font-size: 14px; }
+.pnx-log-list { font-size: 12px; color: var(--pnx-text-dim); display: flex; flex-direction: column; gap: 8px; }
+.pnx-log-item { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
+.pnx-log-item .t { color: #5c6488; font-size: 10.5px; white-space: nowrap; }
+.pnx-log-more {
+  display: block; width: 100%; margin-top: 4px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(199,204,214,0.3);
+  color: var(--pnx-silver); font-size: 12px; font-weight: 700;
+  padding: 8px; border-radius: 8px; cursor: pointer;
+}
+.pnx-log-more:hover { background: rgba(199,204,214,0.12); border-color: var(--pnx-silver); }
+
+@media (max-width: 900px) {
+  .pnx-form-grid { grid-template-columns: 1fr; }
+}

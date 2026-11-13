@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Runtime data, never in Git
+db/
+data/
+logs/
+
+# Keys: ignore everything in vault except the template
+vault/*
+!vault/env.example

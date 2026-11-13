@@ -1,0 +1,91 @@
+{#
+  scraper_workflow_detail.html — Workflow Detail page. Opens as its own
+  page (own URL, own browser tab if middle-clicked) when a Workflow ID
+  is clicked in the Hyperlane table — see solaris.py's
+  scraper_abyss_workflow route.
+
+  Ported from the source dashboard's dashboard_workflow_detail.py
+  (build_workflow_detail_page()) — same three blocks (Details+Actions,
+  Stages progress, Logs), same wfd-* ids/classes so js/
+  scraper_workflow_detail.js's DOM lookups match 1:1. What changed:
+  this is now a real Jinja fragment (not a Python string-built HTML
+  page) rendered via render_page()/shell.html like every other page in
+  this app, and it's reskinned to this app's dark glass theme instead
+  of source's white-card light theme (see scraper_workflow_detail.css
+  for the color mapping — same status vocabulary, different palette).
+
+  Deliberately NOT routed through fragments/tab.html (see solaris.py's
+  comment on the scraper_abyss_workflow route) — self-contained, own
+  back-link, only borrows shell.html for the outer starfield/css/js
+  wrapper. All heavy lifting (rendering details/stages/logs, wiring
+  action buttons) happens client-side in js/scraper_workflow_detail.js
+  against /api/workflow-detail, /api/workflow-logs, /api/workflow-action
+  — this template only prints the static shell + the workflow_id the
+  JS needs to know which workflow to fetch.
+
+  Button positions (redesign pass 4 — full top-section restructure to
+  match your latest reference): everything above the stage pipeline is
+  now ONE unified card instead of a separate page-level top bar plus a
+  bordered meta panel. Row 1: "Workflow Detail" (static) + id + status
+  badge + "Portal (code) · Type" on the left, "Back to Scraper Abyss"
+  on the right. Row 2: Started/Updated as a stacked pair + locations
+  as an inline "name (code)" list on the left, Refresh/Auto-refresh on
+  the right. Row 3: "keywords" as its own centered label. Row 4: every
+  keyword as a flowing "name (code)" multi-column list (CSS columns,
+  auto-count based on available width — not a fixed 5, so this still
+  looks right with fewer or more than 10 keywords). Portal now shows
+  its short code too (e.g. "Adzuna (AD)") the same way keywords/
+  locations already did — see js/scraper_workflow_detail.js's
+  wfdPortalCode(), ported from py/workflow_store.py's PORTAL_CODES.
+
+  #wfd-details-header/#wfd-details-meta/#wfd-details-keywords/
+  #wfd-details-actions are 4 separate JS-rendered sub-containers
+  (not one big innerHTML write) for the same reason as before —
+  Refresh/Auto-refresh and the back-link are static markup living
+  alongside them in the same rows, and a full-card overwrite on every
+  refresh would wipe those out along with their event listeners.
+#}
+<div class="wfd-page" data-page="scraper-workflow-detail">
+
+  <div class="wfd-wrap" id="wfd-wrap" data-wfid="{{ workflow.workflow_id }}">
+
+    <div class="wfd-card" id="wfd-details-block">
+      <div class="wfd-top-row">
+        <div class="wfd-top-row-left">
+          <span class="wfd-static-title">Workflow Detail</span>
+          <span id="wfd-details-header"></span>
+        </div>
+        <a href="/solaris/scraper-abyss/workflow" class="wfd-back-link">&#8592; Back to Scraper Abyss</a>
+      </div>
+
+      <div class="wfd-second-row">
+        <div id="wfd-details-meta"></div>
+        <div class="wfd-refresh-controls">
+          <button class="wfd-refresh-btn" id="wfd-refresh-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+            <span>Refresh</span>
+          </button>
+          <label class="wfd-toggle" id="wfd-auto-refresh-toggle">
+            <input type="checkbox" id="wfd-autorefresh" checked>
+            <span class="wfd-toggle-track"><span class="wfd-toggle-thumb"></span></span>
+            <span class="wfd-toggle-caption">Auto refresh</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="wfd-details-keywords"></div>
+      <div id="wfd-details-actions"></div>
+    </div>
+
+    <div class="wfd-card" id="wfd-stages-block"></div>
+
+    <div class="wfd-card" id="wfd-logs-block">
+      <h2 class="wfd-section-title">Logs <span class="wfd-pill" id="wfd-log-count">0</span></h2>
+      <input type="text" id="wfd-log-search" class="wfd-log-search" placeholder="Search logs&#8230;">
+      <div class="wfd-log-headers">
+        <span>Timestamp</span><span>Workflow ID</span><span>Message</span>
+      </div>
+      <div id="wfd-log-list"></div>
+    </div>
+  </div>
+</div>

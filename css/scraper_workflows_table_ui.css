@@ -1,0 +1,120 @@
+/* scraper_workflows_table_ui.css — styling for the Workflows
+   (Hyperlane) table (fragments/scraper_workflows_table.html), kept in
+   its own file per project convention.
+
+   Status legend is plain icon+label (no pill/chamber chrome) per
+   explicit direction, icons shared with each row's status badge (see
+   scraper_workflows_table.html's status_svg() macro) rather than each
+   keeping its own separate set. Table header follows the same
+   convention as Career Voyager's .cv-table (transparent bg, muted
+   uppercase text, just a bottom border) rather than a solid dark bar,
+   so it fits naturally inside the glass panel like every other table
+   in the app. .wt-hub uses the same backdrop-filter: blur(16px)
+   saturate(130%) frosted-glass treatment as .cv-panel/.pnx-form-
+   section elsewhere in the app — a translucent background color
+   alone, with no blur, just looks flatly see-through against the
+   starfield rather than like soft frosted glass. Colors/spacing
+   throughout match the rest of Scraper Abyss (.sa-panel, .rq-*)
+   rather than the heavier chrome look from the reference this was
+   adapted from. */
+
+.wt-hub {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 22px 26px;
+  display: flex; flex-direction: column; gap: 18px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #94a3b8;
+}
+
+/* ── Header ── */
+.wt-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; }
+.wt-title-group { display: flex; flex-direction: column; gap: 4px; }
+.wt-title-row { display: flex; align-items: center; gap: 10px; }
+.wt-title { font-size: 18px; font-weight: 700; color: #eef1fa; margin: 0; }
+.wt-count-badge {
+  background: rgba(32,146,229,0.18); color: #4aa8ee; font-size: 11px; font-weight: 700;
+  padding: 2px 10px; border-radius: 999px;
+}
+.wt-subtitle { font-size: 12px; color: #9aa3bd; margin: 0; }
+
+.wt-actions-deck { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.wt-refresh-btn {
+  display: flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 16px;
+  background: rgba(32,146,229,0.14); border: 1px solid rgba(32,146,229,0.4); border-radius: 999px;
+  color: #7cc4f7; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+.wt-refresh-btn:hover { transform: translateY(-1px); background: rgba(32,146,229,0.22); }
+.wt-refresh-btn:active { transform: translateY(0) scale(.97); }
+.wt-refresh-btn.wt-spinning svg { animation: wt-spin .7s linear infinite; }
+@keyframes wt-spin { to { transform: rotate(360deg); } }
+
+.wt-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.wt-toggle input { display: none; }
+.wt-toggle-track {
+  width: 34px; height: 18px; border-radius: 999px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14);
+  position: relative; transition: background .2s ease, border-color .2s ease;
+}
+.wt-toggle-thumb {
+  position: absolute; top: 1px; left: 1px; width: 14px; height: 14px; border-radius: 50%;
+  background: #9aa3bd; transition: transform .2s ease, background .2s ease;
+}
+.wt-toggle input:checked + .wt-toggle-track { background: rgba(32,146,229,0.35); border-color: #4aa8ee; }
+.wt-toggle input:checked + .wt-toggle-track .wt-toggle-thumb { transform: translateX(16px); background: #4aa8ee; }
+.wt-toggle-caption { font-size: 11.5px; font-weight: 600; color: #9aa3bd; }
+
+/* ── Status legend (plain icon+label, no pill chrome) ── */
+.wt-legend { display: flex; flex-wrap: wrap; gap: 18px; }
+.wt-legend-item {
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 12.5px; font-weight: 600; color: #6c7592;
+  transition: opacity .15s ease;
+}
+.wt-legend-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.wt-legend-item:not(.wt-active) { opacity: .4; }
+.wt-legend-item.wt-status-waiting { color: #4aa8ee; }
+.wt-legend-item.wt-status-in-progress { color: #fbbf24; }
+.wt-legend-item.wt-status-hold { color: #fb923c; }
+.wt-legend-item.wt-status-failed { color: #f87171; }
+.wt-legend-item.wt-status-cancelled { color: #8292a8; }
+.wt-legend-item.wt-status-completed { color: #4ade80; }
+
+.wt-legend-item-mini { cursor: default; font-size: 11.5px; }
+.wt-legend-item-mini svg { width: 13px; height: 13px; }
+
+/* ── "In Progress" spinning-ring icon — ported from
+   css/scraper_workflow_detail.css's .wfd-icon-spin/.wfd-trk/.wfd-rng
+   so an in-progress workflow reads as visibly "live" here the same
+   way it does on its own detail page, instead of the static
+   lightning-bolt placeholder this used to be. Used by both the
+   legend's "In Progress" filter item and every in-progress row's
+   status badge (see status_svg() in scraper_workflows_table.html). ── */
+.wt-icon-spin { animation: wt-icon-rotate .9s linear infinite; }
+.wt-icon-spin .wt-trk { stroke: currentColor; opacity: .25; stroke-width: 2; }
+.wt-icon-spin .wt-rng { stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 24 34; }
+@keyframes wt-icon-rotate { 100% { transform: rotate(360deg); } }
+
+/* ── Table (same convention as Career Voyager's .cv-table) ── */
+.wt-table-viewport { overflow-x: auto; }
+.wt-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.wt-table thead th {
+  text-align: left; font-size: 10.5px; color: #6c7592;
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap;
+}
+.wt-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.wt-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+.wt-table td { padding: 10px 12px; vertical-align: middle; color: #c8ccdc; }
+.wt-table tr.wt-row-hidden { display: none; }
+
+.wt-id-link { font-family: 'Courier New', monospace; font-weight: 700; color: #eef1fa; text-decoration: none; }
+.wt-id-link:hover { color: #ffffff; text-decoration: underline; }
+.wt-portal-tag { font-weight: 600; color: #eef1fa; }
+.wt-type-tag { color: #9aa3bd; }
+.wt-timestamp { font-family: 'Courier New', monospace; color: #6c7592; font-size: 11.5px; white-space: nowrap; }

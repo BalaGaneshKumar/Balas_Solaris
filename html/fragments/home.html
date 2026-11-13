@@ -1,0 +1,69 @@
+<main class="solar-canvas" role="main" data-page="home">
+
+  <!-- Black hole / power button -->
+  <button class="blackhole-btn" aria-label="Terminus — shut down" title="Terminus">
+    <img src="/solaris/Assets/png/blackhole.png" class="blackhole-disk" alt="" aria-hidden="true" />
+    <span class="blackhole-label text-anim">Terminus</span>
+  </button>
+
+  <!-- Header: sun + title -->
+  <header class="solaris-header">
+    <span class="sun-wrap">
+      <span class="sun-flare" aria-hidden="true"></span>
+      <canvas id="sun-canvas" class="sun-orb" aria-hidden="true"></canvas>
+    </span>
+    <h1 class="solaris-title text-anim">Bala's Solaris</h1>
+    <p class="solaris-tagline text-anim">Radiant centerpiece of identity and energy, illuminating every journey.</p>
+  </header>
+
+  <!-- Planet row -->
+  <div class="planet-row" role="list">
+
+    <a href="/solaris/job-odyssey" class="planet-node" data-planet="job-odyssey" role="listitem" aria-label="Job Odyssey — Jobs dashboard">
+      <div class="saturn-system">
+        <span class="planet-ring-back" aria-hidden="true"><span class="ring-squash"><span class="ring-spin"></span></span></span>
+        <div class="planet-orb planet-saturn"></div>
+        <span class="planet-ring-front" aria-hidden="true"><span class="ring-squash"><span class="ring-spin"></span></span></span>
+      </div>
+      <span class="planet-label text-anim">Job Odyssey</span>
+    </a>
+
+    <a href="/solaris/career-voyager" class="planet-node" data-planet="career-voyager" role="listitem" aria-label="Career Voyager — Applications tracker">
+      <div class="mars-system">
+        <div class="planet-orb planet-mars"></div>
+        <span class="voyager-sat" id="voyager-sat" aria-hidden="true">
+          <span class="sat-dish"></span>
+        </span>
+      </div>
+      <span class="planet-label text-anim">Career Voyager</span>
+    </a>
+
+    <a href="/solaris/scraper-abyss" class="planet-node" data-planet="scraper-abyss" role="listitem" aria-label="Scraper Abyss — Scrapers and logs">
+      <div class="abyss-system">
+        <div class="planet-orb planet-neptune">
+          <span class="sonar-ping"></span>
+          <span class="sonar-ping sonar-ping--delayed"></span>
+        </div>
+        <span class="sonar-probe" id="sonar-probe" aria-hidden="true">
+          <span class="sonar-light"></span>
+        </span>
+      </div>
+      <span class="planet-label text-anim">Scraper Abyss</span>
+    </a>
+
+    <a href="/solaris/profile-nexus" class="planet-node" data-planet="profile-nexus" role="listitem" aria-label="Profile Nexus — User data">
+      <div class="planet-orb planet-gold">
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+        <span class="twinkle"></span>
+      </div>
+      <span class="planet-label text-anim">Profile Nexus</span>
+    </a>
+
+  </div>
+</main>

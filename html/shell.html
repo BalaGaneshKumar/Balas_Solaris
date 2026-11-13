@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/solaris/base.css" />
+  <link rel="stylesheet" href="/solaris/blackhole.css" />
+  <link rel="stylesheet" href="/solaris/sun.css" />
+  <link rel="stylesheet" href="/solaris/starfield_shell.css" />
+  <link rel="stylesheet" href="/solaris/planet_base.css" />
+  <link rel="stylesheet" href="/solaris/planet_row.css" />
+  <link rel="stylesheet" href="/solaris/saturn.css" />
+  <link rel="stylesheet" href="/solaris/mars.css" />
+  <link rel="stylesheet" href="/solaris/abyss.css" />
+  <link rel="stylesheet" href="/solaris/nexus.css" />
+  <link rel="stylesheet" href="/solaris/profile_nexus_ui.css" />
+  <link rel="stylesheet" href="/solaris/career_voyager_ui.css" />
+  <link rel="stylesheet" href="/solaris/job_odyssey_ui.css" />
+  <link rel="stylesheet" href="/solaris/scraper_abyss_ui.css" />
+  <link rel="stylesheet" href="/solaris/scraper_requests_ui.css" />
+  <link rel="stylesheet" href="/solaris/scraper_workflows_table_ui.css" />
+  <link rel="stylesheet" href="/solaris/scraper_workflow_detail.css" />
+  <link rel="stylesheet" href="/solaris/transition.css" />
+  <link rel="stylesheet" href="/solaris/tab.css" />
+  <link rel="stylesheet" href="/solaris/responsive.css" />
+  <link rel="stylesheet" href="/solaris/export_wizard.css" />
+</head>
+<body class="{{ '' if powered_on else 'solaris-booting' }}" data-page-key="{{ page_key }}">
+
+  <!-- Persistent chrome — NEVER swapped by the router, stays mounted and
+       running continuously across every navigation. This is what makes
+       the starfield keep twinkling uninterrupted through transitions. -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <!-- Persistent Add Application modal (Career Voyager). Lives here
+       instead of career_voyager.html's fragment so it survives router.js
+       swaps and can be opened from ANY tab — specifically Job Odyssey's
+       "Applied" button (js/job_odyssey_ui.js -> window.cvOpenAppModalPrefill),
+       matching source's dashboard_jobodyssey.py/dashboard_career.py setup
+       where every tab's HTML sat on one page and this modal was just a
+       position:fixed overlay on top, regardless of which tab was visible.
+       Bound once, unconditionally, by career_voyager_ui.js's
+       initGlobalAppModal() — NOT by initCareerVoyagerUi(), since that only
+       runs while Career is the active tab and this modal must work even
+       when it isn't. Career's OTHER modal (Add Job Site, cv-site-modal)
+       stays in its own fragment as normal — it's only ever opened from
+       inside the Career tab itself. -->
+  <div class="cv-popup-overlay" id="cv-popup-overlay" style="display:none"></div>
+  <div class="cv-popup" id="cv-url-popup" style="display:none">
+    <p id="cv-url-popup-msg"></p>
+    <button class="cv-btn-save" id="cv-url-popup-ok">OK</button>
+  </div>
+
+  <div class="cv-modal-overlay" id="cv-app-modal">
+    <div class="cv-modal">
+      <button class="cv-modal-x" id="cv-app-modal-close" aria-label="Close">&times;</button>
+      <h3 id="cv-app-modal-title">Add application</h3>
+
+      <div class="cv-form-row-3">
+        <div class="cv-field"><label for="cv-af-company">Company *</label><input id="cv-af-company" type="text" placeholder="e.g. Google"></div>
+        <div class="cv-field"><label for="cv-af-link">Job link</label><input id="cv-af-link" type="url" placeholder="https://…"></div>
+        <div class="cv-field"><label>Credential status</label>
+          <div class="cv-dd cv-fdd" id="cv-af-cred" data-value="">
+            <button type="button" class="cv-dd-trigger">
+              <span class="cv-dd-val">-- Select --</span><span class="cv-dd-chev">▾</span>
+            </button>
+            <div class="cv-dd-panel">
+              <div class="cv-dd-opt cv-dd-selected" data-value="">-- Select --</div>
+              <div class="cv-dd-opt" data-value="Registered">Registered</div>
+              <div class="cv-dd-opt" data-value="Not Registered">Not Registered</div>
+              <div class="cv-dd-opt" data-value="Registered Incomplete">Registered Incomplete</div>
+              <div class="cv-dd-opt" data-value="Mailed">Mailed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-substage-row" id="cv-af-credtype-row">
+        <div class="cv-form-row-2">
+          <div class="cv-field"><label>Credential detail</label>
+            <div class="cv-dd cv-fdd" id="cv-af-credtype" data-value="">
+              <button type="button" class="cv-dd-trigger">
+                <span class="cv-dd-val">-- Select --</span><span class="cv-dd-chev">▾</span>
+              </button>
+              <div class="cv-dd-panel">
+                <div class="cv-dd-opt cv-dd-selected" data-value="">-- Select --</div>
+                <div class="cv-dd-opt" data-value="With Password">With Password</div>
+                <div class="cv-dd-opt" data-value="Via Google">Via Google</div>
+                <div class="cv-dd-opt" data-value="Via LinkedIn">Via LinkedIn</div>
+                <div class="cv-dd-opt" data-value="Via Greenhouse">Via Greenhouse</div>
+                <div class="cv-dd-opt" data-value="Via Talent500">Via Talent500</div>
+                <div class="cv-dd-opt" data-value="Via Instahyre">Via Instahyre</div>
+                <div class="cv-dd-opt" data-value="Via Naukri">Via Naukri</div>
+                <div class="cv-dd-opt" data-value="No Password / OTP Login">No Password / OTP Login</div>
+                <div class="cv-dd-opt" data-value="Unable to check / Open">Unable to check / Open</div>
+                <div class="cv-dd-opt" data-value="Applied Directly">Applied Directly</div>
+              </div>
+            </div>
+          </div>
+          <div class="cv-field" id="cv-af-credpass-row" style="display:none"><label for="cv-af-credpass">Password hint</label><input id="cv-af-credpass" type="text" placeholder="e.g. Ba**10*****@"></div>
+        </div>
+      </div>
+
+      <hr class="cv-modal-divider">
+
+      <div class="cv-form-row-2">
+        <div class="cv-field"><label for="cv-af-role">Role *</label><input id="cv-af-role" type="text" placeholder="e.g. Software Engineer"></div>
+        <div class="cv-field"><label for="cv-af-location">Location</label><input id="cv-af-location" type="text" placeholder="e.g. Bangalore / Remote"></div>
+      </div>
+
+      <div class="cv-form-row-2">
+        <div class="cv-field"><label for="cv-af-date">Applied date</label><input id="cv-af-date" type="date"></div>
+        <div class="cv-field"><label>Stage</label>
+          <div class="cv-dd cv-fdd" id="cv-af-stage" data-value="">
+            <button type="button" class="cv-dd-trigger">
+              <span class="cv-dd-val">-- Select --</span><span class="cv-dd-chev">▾</span>
+            </button>
+            <div class="cv-dd-panel">
+              <div class="cv-dd-opt cv-dd-selected" data-value="">-- Select --</div>
+              <div class="cv-dd-opt" data-value="Applied">Applied</div>
+              <div class="cv-dd-opt" data-value="In Progress">In Progress</div>
+              <div class="cv-dd-opt" data-value="Interview">Interview</div>
+              <div class="cv-dd-opt" data-value="Offer">Offer</div>
+              <div class="cv-dd-opt" data-value="Rejected">Rejected</div>
+              <div class="cv-dd-opt" data-value="Closed">Closed</div>
+              <div class="cv-dd-opt" data-value="Ghosted">Ghosted</div>
+              <div class="cv-dd-opt" data-value="Withdrawn">Withdrawn</div>
+              <div class="cv-dd-opt" data-value="NA">NA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-substage-row" id="cv-af-substage-row">
+        <div class="cv-field"><label>Sub-stage</label>
+          <div class="cv-dd cv-fdd" id="cv-af-substage" data-value="">
+            <button type="button" class="cv-dd-trigger">
+              <span class="cv-dd-val">-- Select --</span><span class="cv-dd-chev">▾</span>
+            </button>
+            <div class="cv-dd-panel">
+              <div class="cv-dd-opt cv-dd-selected" data-value="">-- Select --</div>
+              <div class="cv-dd-opt" data-value="Screening Pending">Screening Pending</div>
+              <div class="cv-dd-opt" data-value="Screening">Screening</div>
+              <div class="cv-dd-opt" data-value="Review">Review</div>
+              <div class="cv-dd-opt" data-value="Under Consideration">Under Consideration</div>
+              <div class="cv-dd-opt" data-value="In Progress">In Progress</div>
+              <div class="cv-dd-opt" data-value="Closed">Closed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-substage-row" id="cv-af-ghosted-row">
+        <div class="cv-field"><label>Last known stage before ghosting</label>
+          <div class="cv-dd cv-fdd" id="cv-af-ghosted-sub" data-value="">
+            <button type="button" class="cv-dd-trigger">
+              <span class="cv-dd-val">-- Select --</span><span class="cv-dd-chev">▾</span>
+            </button>
+            <div class="cv-dd-panel">
+              <div class="cv-dd-opt cv-dd-selected" data-value="">-- Select --</div>
+              <div class="cv-dd-opt" data-value="Applied">Applied</div>
+              <div class="cv-dd-opt" data-value="In Progress">In Progress</div>
+              <div class="cv-dd-opt" data-value="Screening Pending">Screening Pending</div>
+              <div class="cv-dd-opt" data-value="Screening">Screening</div>
+              <div class="cv-dd-opt" data-value="Review">Review</div>
+              <div class="cv-dd-opt" data-value="Under Consideration">Under Consideration</div>
+              <div class="cv-dd-opt" data-value="Closed">Closed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-form-row-2">
+        <div class="cv-field"><label for="cv-af-jobid">Job ID</label><input id="cv-af-jobid" type="text" placeholder="e.g. R-2026-04471"></div>
+        <div class="cv-field"><label for="cv-af-notes">Notes</label><input id="cv-af-notes" type="text" placeholder="Remarks…"></div>
+      </div>
+
+      <div class="cv-modal-actions">
+        <button class="cv-btn-cancel" id="cv-app-modal-cancel">Cancel</button>
+        <button class="cv-btn-save" id="cv-app-modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Export Wizard ("Cosmic Cargo") — used by every tab's download
+       button. Lives here for the same reason as the Add Application
+       modal above: reachable from any tab, bound once by
+       js/export_wizard.js's bindExportWizard(). A tab registers by
+       calling window.expOpen(cfg) — see that file's header comment. -->
+  <div class="exp-overlay-bg" id="exp-overlay-bg" style="display:none"></div>
+  <div class="exp-modal-overlay" id="exp-modal">
+    <div class="exp-modal">
+      <button class="exp-modal-x" aria-label="Close">&times;</button>
+
+      <div id="exp-step-choice" class="exp-step">
+        <h3>Cosmic Cargo <span id="exp-source-label"></span></h3>
+        <div class="exp-choice-row">
+          <button class="exp-choice-btn" id="exp-choice-current" type="button">
+            <div class="exp-choice-title">Current</div>
+            <div class="exp-choice-sub">Export everything matching the filters, search &amp; sort already applied on screen</div>
+          </button>
+          <button class="exp-choice-btn" id="exp-choice-new" type="button">
+            <div class="exp-choice-title">New</div>
+            <div class="exp-choice-sub">Choose fresh filters and a sort order for this export</div>
+          </button>
+        </div>
+      </div>
+
+      <div id="exp-step-filters" class="exp-step" style="display:none">
+        <h3>Filters</h3>
+        <div id="exp-filters-body"></div>
+        <div class="exp-nav-row">
+          <button class="exp-btn-secondary" id="exp-filters-back" type="button">&#8592; Back</button>
+          <button class="exp-btn-primary" id="exp-filters-next" type="button">Next: Columns &#8594;</button>
+        </div>
+      </div>
+
+      <div id="exp-step-columns" class="exp-step" style="display:none">
+        <h3>Columns</h3>
+        <label class="exp-col-all"><input type="checkbox" id="exp-col-all-cb" checked> All columns</label>
+        <div id="exp-columns-body" class="exp-columns-grid"></div>
+        <div class="exp-nav-row">
+          <button class="exp-btn-secondary" id="exp-columns-back" type="button">&#8592; Back</button>
+          <button class="exp-btn-primary" id="exp-columns-next" type="button">Next: File Type &#8594;</button>
+        </div>
+      </div>
+
+      <div id="exp-step-filetype" class="exp-step" style="display:none">
+        <h3>File Type</h3>
+        <div class="exp-choice-row">
+          <button class="exp-choice-btn" id="exp-download-csv" type="button">
+            <div class="exp-choice-title">CSV</div>
+            <div class="exp-choice-sub">Plain comma-separated file, opens in any spreadsheet app</div>
+          </button>
+          <button class="exp-choice-btn" id="exp-download-xlsx" type="button">
+            <div class="exp-choice-title">XLSX</div>
+            <div class="exp-choice-sub">Excel format with a frozen header row and color-coded status/stage rows</div>
+          </button>
+        </div>
+        <div class="exp-nav-row">
+          <button class="exp-btn-secondary" id="exp-filetype-back" type="button">&#8592; Back</button>
+          <span></span>
+        </div>
+      </div>
+
+      <div id="exp-step-loading" class="exp-step" style="display:none">
+        <div class="exp-loading">
+          <div class="exp-loading-text" id="exp-loading-text">Preparing your file&#8230;</div>
+          <div class="exp-progress-track" id="exp-progress-track">
+            <progress id="exp-progress" value="0" max="1000"></progress>
+          </div>
+          <div class="exp-progress-pct" id="exp-progress-pct"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Everything below is swapped by js/router.js on navigation. The
+       server renders the correct initial content here too, so a direct
+       visit/refresh/bookmark works with no flash of empty content and
+       no second request. -->
+  <div id="app">{{ body_html|safe }}</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/solaris/shared.js"></script>
+  <script src="/solaris/tab.js"></script>
+  <script src="/solaris/sun.js"></script>
+  <script src="/solaris/saturn.js"></script>
+  <script src="/solaris/mars.js"></script>
+  <script src="/solaris/abyss.js"></script>
+  <script src="/solaris/nexus.js"></script>
+  <script src="/solaris/profile_nexus_ui.js"></script>
+  <script src="/solaris/export_wizard.js"></script>
+  <script src="/solaris/career_voyager_ui.js"></script>
+  <script src="/solaris/job_odyssey_ui.js"></script>
+  <script src="/solaris/scraper_abyss_ui.js"></script>
+  <script src="/solaris/scraper_requests_ui.js"></script>
+  <script src="/solaris/scraper_workflows_table_ui.js"></script>
+  <script src="/solaris/scraper_workflow_detail.js"></script>
+  <script src="/solaris/starfield.js"></script>
+  <script src="/solaris/blackhole.js"></script>
+  <script src="/solaris/boot.js"></script>
+  <script src="/solaris/transition.js"></script>
+  <script src="/solaris/router.js"></script>
+</body>
+</html>

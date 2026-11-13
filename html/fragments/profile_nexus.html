@@ -1,0 +1,241 @@
+{#
+  profile_nexus.html — the ONE html file holding everything specific to
+  the Profile Nexus tab (header-bar content, log button content, and
+  the full tab-content form). tab.html is the shared "transition stuff"
+  skeleton used by all 4 tabs (nav-cluster, header shell, log-btn
+  shell, tab-content shell) — it imports these three macros and calls
+  each one at its matching slot, only when current_key == 'profile-nexus':
+
+      {% from "fragments/profile_nexus.html" import pnx_header, pnx_log, pnx_content %}
+      {{ pnx_header() }}   -> inside .tab-header-bar
+      {{ pnx_log() }}      -> inside #log-btn
+      {{ pnx_content(active_sub) }}  -> inside .tab-content
+
+  active_sub (one of the 9 data-sub slugs below, defaults to
+  'personal') decides which sub-page is server-rendered visible and
+  which nav button starts active — set by solaris.py based on which
+  URL was hit (/profile-nexus defaults to personal; /profile-nexus/
+  <slug> for any of the 9 sets it explicitly), so a direct link,
+  bookmark, or browser back/forward always lands on the right
+  sub-page. Switching sub-pages via click stays a pure client-side
+  toggle (js/profile_nexus_ui.js) — it also updates the URL via
+  history.pushState, but deliberately does NOT re-fetch through the
+  router: this tab loads its data via a separate /api/profile-data
+  fetch after mount (see that file), so a full re-fetch on every
+  sub-tab click would discard any typed-but-not-yet-Saved field
+  values, which the current pure-toggle behavior never did.
+
+  Behavior (sub-tab switching, Work History add/remove, log toggle,
+  Save click) lives in js/profile_nexus_ui.js — this file is markup
+  only. Styling lives in css/profile_nexus_ui.css.
+#}
+
+{% macro pnx_header() %}
+<div class="pnx-title-panel">
+  <h1>Profile Nexus</h1>
+  <p>The core command hub anchoring your identity, skills, and universe.</p>
+  <div class="pnx-tabs">
+    <button class="pnx-save-btn" id="pnx-save-btn">
+      <svg class="pnx-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+      <span class="pnx-pill-inner">Save</span>
+    </button>
+  </div>
+  <span class="pnx-save-msg" id="pnx-save-msg"></span>
+</div>
+{% endmacro %}
+
+{% macro pnx_log() %}
+<div class="pnx-log-visual">
+  <span class="pnx-log-badge" id="pnx-log-badge">0</span>
+  <svg class="pnx-log-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="3" width="14" height="19" rx="2.2"/>
+    <rect x="8.5" y="1.6" width="7" height="3" rx="1"/>
+    <line x1="8" y1="9" x2="8" y2="9"/><line x1="11" y1="9" x2="16" y2="9"/>
+    <line x1="8" y1="13" x2="8" y2="13"/><line x1="11" y1="13" x2="16" y2="13"/>
+    <line x1="8" y1="17" x2="8" y2="17"/><line x1="11" y1="17" x2="16" y2="17"/>
+  </svg>
+  <span class="pnx-log-label">LOGS</span>
+</div>
+{% endmacro %}
+
+{% macro pnx_content(active_sub='personal') %}
+<div class="pnx-sub-nav" id="pnx-sub-nav">
+  <button class="{{ 'active' if active_sub == 'personal' else '' }}" data-sub="personal">Personal Information</button>
+  <button class="{{ 'active' if active_sub == 'education' else '' }}" data-sub="education">Education</button>
+  <button class="{{ 'active' if active_sub == 'experience' else '' }}" data-sub="experience">Experience</button>
+  <button class="{{ 'active' if active_sub == 'workhistory' else '' }}" data-sub="workhistory">Work History</button>
+  <button class="{{ 'active' if active_sub == 'eeo' else '' }}" data-sub="eeo">EEO Information</button>
+  <button class="{{ 'active' if active_sub == 'workauth' else '' }}" data-sub="workauth">Work Authorization</button>
+  <button class="{{ 'active' if active_sub == 'india' else '' }}" data-sub="india">India Specific</button>
+  <button class="{{ 'active' if active_sub == 'social' else '' }}" data-sub="social">Social &amp; Links</button>
+  <button class="{{ 'active' if active_sub == 'skills' else '' }}" data-sub="skills">Skills &amp; Preferences</button>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'personal' else '' }}" id="pnx-sub-personal">
+  <div class="pnx-form-section">
+    <h2>Personal information</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>First Name</label><input id="pnx_firstName" type="text"></div>
+      <div class="pnx-form-group"><label>Last Name</label><input id="pnx_lastName" type="text"></div>
+      <div class="pnx-form-group"><label>Full Name</label><input id="pnx_fullName" type="text"></div>
+      <div class="pnx-form-group"><label>Legal Name</label><input id="pnx_legalName" type="text"></div>
+      <div class="pnx-form-group"><label>Middle Name</label><input id="pnx_middleName" type="text"></div>
+      <div class="pnx-form-group"><label>Preferred Name</label><input id="pnx_preferredName" type="text"></div>
+      <div class="pnx-form-group"><label>Email</label><input id="pnx_email" type="email"></div>
+      <div class="pnx-form-group"><label>Phone</label><input id="pnx_phone" type="text"></div>
+      <div class="pnx-form-group"><label>Phone Type</label>
+        <select id="pnx_phoneType"><option>Mobile</option><option>Home</option><option>Work</option></select>
+      </div>
+      <div class="pnx-form-group"><label>Phone Country Code</label><input id="pnx_phoneCountry" type="text"></div>
+      <div class="pnx-form-group"><label>Birthday</label><input id="pnx_birthday" type="date"></div>
+      <div class="pnx-form-group"><label>Location</label><input id="pnx_location" type="text"></div>
+      <div class="pnx-form-group"><label>Address</label><input id="pnx_address" type="text"></div>
+      <div class="pnx-form-group"><label>City</label><input id="pnx_city" type="text"></div>
+      <div class="pnx-form-group"><label>State</label><input id="pnx_state" type="text"></div>
+      <div class="pnx-form-group"><label>Country</label><input id="pnx_country" type="text"></div>
+      <div class="pnx-form-group"><label>Postal Code</label><input id="pnx_postalCode" type="text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'education' else '' }}" id="pnx-sub-education">
+  <div class="pnx-form-section">
+    <h2>Education</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>School / University</label><input id="pnx_school" type="text"></div>
+      <div class="pnx-form-group"><label>Degree</label><input id="pnx_degree" type="text"></div>
+      <div class="pnx-form-group"><label>Highest Degree</label>
+        <select id="pnx_highestDegree"><option value="">Select</option><option>High School</option><option>Diploma</option><option>Bachelor</option><option>Master</option><option>PhD</option></select>
+      </div>
+      <div class="pnx-form-group"><label>Graduation Year</label><input id="pnx_gradYear" type="text"></div>
+      <div class="pnx-form-group"><label>GPA / CGPA</label><input id="pnx_gpa" type="text"></div>
+      <div class="pnx-form-group"><label>Field of Study</label><input id="pnx_fieldOfStudy" type="text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'experience' else '' }}" id="pnx-sub-experience">
+  <div class="pnx-form-section">
+    <h2>Experience</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>Currently Employed</label><select id="pnx_currentlyEmployed"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Total Experience (Years)</label><input id="pnx_totalExperience" type="text"></div>
+      <div class="pnx-form-group"><label>Relevant Experience (Years)</label><input id="pnx_relevantExperience" type="text"></div>
+      <div class="pnx-form-group"><label>Notice Period</label>
+        <select id="pnx_noticePeriod"><option value="">Select</option><option>Immediate</option><option>15 Days</option><option>30 Days</option><option>45 Days</option><option>60 Days</option><option>90 Days</option></select>
+      </div>
+      <div class="pnx-form-group"><label>Current CTC</label><input id="pnx_currentCTC" type="text"></div>
+      <div class="pnx-form-group"><label>Expected CTC — Text</label><input id="pnx_expectedCTCText" type="text"></div>
+      <div class="pnx-form-group"><label>Expected CTC — Number</label><input id="pnx_expectedCTCNumber" type="number"></div>
+      <div class="pnx-form-group"><label>Available From</label><input id="pnx_availableFrom" type="date"></div>
+      <div class="pnx-form-group"><label>Night Shift</label><select id="pnx_nightShift"><option>No</option><option>Yes</option></select></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'workhistory' else '' }}" id="pnx-sub-workhistory">
+  <div class="pnx-form-section">
+    <h2>Work History <button class="pnx-add-job-btn" id="pnx-add-job">+ Add Job</button></h2>
+    <div id="pnx-jobs-container"></div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'eeo' else '' }}" id="pnx-sub-eeo">
+  <div class="pnx-form-section">
+    <h2>EEO information</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>Gender</label><select id="pnx_gender"><option value="">Prefer not to say</option><option>Male</option><option>Female</option><option>Non-binary</option></select></div>
+      <div class="pnx-form-group"><label>Ethnicity</label><input id="pnx_ethnicity" type="text"></div>
+      <div class="pnx-form-group"><label>Hispanic</label><select id="pnx_hispanic"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Veteran Status</label><select id="pnx_veteran"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Disability</label><select id="pnx_disability"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>LGBT</label><select id="pnx_lgbt"><option>Prefer not to say</option><option>Yes</option><option>No</option></select></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'workauth' else '' }}" id="pnx-sub-workauth">
+  <div class="pnx-form-section">
+    <h2>Work authorization</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>Work Authorization</label><input id="pnx_workAuthorization" type="text"></div>
+      <div class="pnx-form-group"><label>Work Auth (US)</label><select id="pnx_workAuthUS"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Visa Type</label><input id="pnx_visaType" type="text"></div>
+      <div class="pnx-form-group"><label>Sponsorship Required</label><select id="pnx_sponsorship"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Willing to Relocate</label><select id="pnx_relocate"><option>No</option><option>Yes</option></select></div>
+      <div class="pnx-form-group"><label>Relocate Preference</label><input id="pnx_relocatePreference" type="text"></div>
+      <div class="pnx-form-group"><label>Work Location Preference</label><input id="pnx_workLocation" type="text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'india' else '' }}" id="pnx-sub-india">
+  <div class="pnx-form-section">
+    <h2>India specific</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>PAN Number</label><input id="pnx_pan" type="text"></div>
+      <div class="pnx-form-group"><label>Aadhaar Number</label><input id="pnx_aadhaar" type="text"></div>
+      <div class="pnx-form-group"><label>UAN Number</label><input id="pnx_uan" type="text"></div>
+      <div class="pnx-form-group"><label>ESIC Number</label><input id="pnx_esic" type="text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'social' else '' }}" id="pnx-sub-social">
+  <div class="pnx-form-section">
+    <h2>Social &amp; links</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>LinkedIn</label><input id="pnx_linkedin" type="text"></div>
+      <div class="pnx-form-group"><label>GitHub</label><input id="pnx_github" type="text"></div>
+      <div class="pnx-form-group"><label>Portfolio</label><input id="pnx_portfolio" type="text"></div>
+      <div class="pnx-form-group"><label>Website</label><input id="pnx_website" type="text"></div>
+      <div class="pnx-form-group"><label>Twitter</label><input id="pnx_twitter" type="text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnx-sub-page {{ 'active' if active_sub == 'skills' else '' }}" id="pnx-sub-skills">
+  <div class="pnx-form-section">
+    <h2>Skills &amp; preferences</h2>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group full-width"><label>Skills</label><textarea id="pnx_skills"></textarea></div>
+      <div class="pnx-form-group"><label>Language</label><input id="pnx_language" type="text"></div>
+      <div class="pnx-form-group"><label>Native Language</label><input id="pnx_nativeLanguage" type="text"></div>
+      <div class="pnx-form-group"><label>Employment Type</label><select id="pnx_empType"><option>Full Time</option><option>Part Time</option><option>Contract</option><option>Internship</option></select></div>
+      <div class="pnx-form-group full-width"><label>Professional Summary</label><textarea id="pnx_summary"></textarea></div>
+    </div>
+  </div>
+</div>
+
+<!-- Job card template — js/profile_nexus_ui.js clones this per entry
+     instead of building HTML strings in JS. __IDX__ tokens on id
+     attributes are set post-clone via the DOM .id property, never
+     via string concatenation. -->
+<template id="pnx-job-template">
+  <div class="pnx-job-card" id="pnx-job-__IDX__">
+    <div class="pnx-job-card-head">
+      <strong>Job #<span class="pnx-job-number">__NUM__</span></strong>
+      <button class="pnx-remove-btn" data-remove-job="__IDX__">Remove</button>
+    </div>
+    <div class="pnx-form-grid">
+      <div class="pnx-form-group"><label>Job Title</label><input id="pnx_job_title___IDX__" type="text"></div>
+      <div class="pnx-form-group"><label>Company</label><input id="pnx_job_company___IDX__" type="text"></div>
+      <div class="pnx-form-group"><label>Start Date</label><input id="pnx_job_start___IDX__" type="month"></div>
+      <div class="pnx-form-group"><label>End Date</label><input id="pnx_job_end___IDX__" type="month"></div>
+      <div class="pnx-form-group"><label>Currently Working</label>
+        <select id="pnx_job_cw___IDX__"><option value="No">No</option><option value="Yes">Yes</option></select>
+      </div>
+      <div class="pnx-form-group full-width"><label>Description</label><textarea id="pnx_job_desc___IDX__"></textarea></div>
+    </div>
+  </div>
+</template>
+
+<div class="log-scroll-row"><button type="button" class="scroll-circle-btn" data-scroll="top" title="Jump to the top" aria-label="Jump to the top"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<div class="pnx-log-panel" id="pnx-log-panel">
+  <h2>Activity Log <span class="pnx-log-pill" id="pnx-log-count">0</span>
+    <span class="pnx-log-note">This session only — not saved</span>
+    <button type="button" class="pnx-log-download" id="pnx-log-download" title="Download the whole activity log as a text file">Download</button>
+  </h2>
+  <div class="pnx-log-list" id="pnx-log-list"></div>
+</div>
+{% endmacro %}

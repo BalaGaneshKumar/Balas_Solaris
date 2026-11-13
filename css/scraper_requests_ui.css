@@ -1,0 +1,188 @@
+/* scraper_requests_ui.css — styling for the Requests (Beacon) form
+   (fragments/scraper_requests.html), kept in its own file per project
+   convention.
+
+   v2 redesign: "chamber" pills (metal node-socket icon ring fused
+   into a glass-tube label), one accent color per section (Engine=
+   cyan, Portal=purple, Keywords=green, Location=yellow, Blacklist=
+   red) instead of the old single-blue .rf-* design. All classes
+   namespaced .rq-* so nothing collides with the rest of the app —
+   same convention as .cv-*/.jo-*/.pnx-*/.sa-*.
+
+   Frosted-glass "cloud" surfaces (.rq-hub, .rq-card) use the SAME
+   backdrop-filter: blur(...) + saturate(130%) treatment already
+   established in css/career_voyager_ui.css/.cv-panel and
+   css/profile_nexus_ui.css/.pnx-form-section — a translucent
+   background color alone (no blur) just looks flatly see-through
+   against the starfield rather than like soft frosted glass; the
+   blur is what actually gives it that "cloud" quality. */
+
+.rq-hub {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 24px 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  color: #94a3b8;
+}
+
+/* ── Header ── */
+.rq-header {
+  display: flex; flex-direction: column; gap: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1.4rem;
+  position: relative; z-index: 1;
+}
+.rq-title-row { display: flex; align-items: center; gap: 1rem; }
+.rq-title { font-size: 18px; font-weight: 700; color: #eef1fa; margin: 0; }
+.rq-badge {
+  background: rgba(32, 146, 229, 0.18); border-radius: 999px;
+  padding: 2px 10px; font-size: 11px; font-weight: 700;
+  color: #4aa8ee;
+}
+.rq-subtitle { font-size: 12px; color: #9aa3bd; margin: 0; }
+
+/* ── Section grid ── */
+.rq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; position: relative; z-index: 1; }
+.rq-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.rq-full-width { grid-column: span 2; }
+.rq-card-head { display: flex; justify-content: space-between; align-items: center; }
+.rq-card-title { font-size: 0.75rem; font-weight: 700; letter-spacing: .5px; }
+.rq-select-all {
+  background: none; border: none; font-size: 0.72rem; font-weight: 800;
+  letter-spacing: .3px; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.rq-select-all:hover { opacity: 0.75; }
+
+.rq-chambers { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+
+/* Plain pill chip — same simple vocabulary as the rest of the app's
+   selectable pills/tags (Job Odyssey's status filter, badges) instead
+   of the earlier icon-ring-fused-to-a-tube "chamber" component.
+   Inactive chips stay dimmed but readable, not hidden. */
+.rq-chamber {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px; cursor: pointer;
+  flex-shrink: 0; user-select: none;
+  transition: transform 0.15s ease, opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.15s ease;
+}
+.rq-chamber:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.28); }
+.rq-chamber:not(.rq-active) { opacity: 0.5; }
+.rq-chamber-icon { flex-shrink: 0; stroke: #7b889b; transition: stroke 0.2s ease; }
+.rq-step-label { font-size: 0.72rem; letter-spacing: .3px; font-weight: 700; transition: color 0.2s ease; color: #7b889b; }
+.rq-chamber.rq-active .rq-step-label { color: #f1f5f9; }
+.rq-close { font-size: 0.85rem; color: rgba(255, 255, 255, 0.4); font-weight: bold; transition: color 0.2s; margin-left: 2px; }
+.rq-chamber:hover .rq-close { color: #ffffff; }
+
+/* ── Per-section accent themes ──
+   Active chip = tinted fill + colored border + glow, same recipe
+   already used for Job Odyssey's status action buttons (.jo-act-*),
+   just applied here per-section instead of per-status. */
+.rq-theme-cyan .rq-card-title, .rq-theme-cyan .rq-select-all { color: #38bdf8; }
+.rq-theme-cyan .rq-chamber.rq-active { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.6); box-shadow: 0 0 12px rgba(56,189,248,0.25); }
+.rq-theme-cyan .rq-chamber.rq-active .rq-chamber-icon { stroke: #38bdf8; }
+.rq-theme-cyan .rq-chamber.rq-active .rq-step-label { color: #bae6fd; }
+
+.rq-theme-purple .rq-card-title, .rq-theme-purple .rq-select-all { color: #c084fc; }
+.rq-theme-purple .rq-chamber.rq-active { background: rgba(192,132,252,0.16); border-color: rgba(192,132,252,0.6); box-shadow: 0 0 12px rgba(192,132,252,0.25); }
+.rq-theme-purple .rq-chamber.rq-active .rq-chamber-icon { stroke: #c084fc; }
+.rq-theme-purple .rq-chamber.rq-active .rq-step-label { color: #e9d5ff; }
+
+.rq-theme-green .rq-card-title, .rq-theme-green .rq-select-all { color: #34d399; }
+.rq-theme-green .rq-chamber.rq-active { background: rgba(52,211,153,0.16); border-color: rgba(52,211,153,0.6); box-shadow: 0 0 12px rgba(52,211,153,0.25); }
+.rq-theme-green .rq-chamber.rq-active .rq-step-label { color: #a7f3d0; }
+
+.rq-theme-yellow .rq-card-title, .rq-theme-yellow .rq-select-all { color: #fbbf24; }
+.rq-theme-yellow .rq-chamber.rq-active { background: rgba(251,191,36,0.16); border-color: rgba(251,191,36,0.6); box-shadow: 0 0 12px rgba(251,191,36,0.25); }
+.rq-theme-yellow .rq-chamber.rq-active .rq-step-label { color: #fde68a; }
+
+.rq-theme-red .rq-card-title, .rq-theme-red .rq-select-all { color: #f87171; }
+.rq-theme-red .rq-chamber.rq-active { background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.6); box-shadow: 0 0 12px rgba(248,113,113,0.25); }
+.rq-theme-red .rq-chamber.rq-active .rq-step-label { color: #fecaca; }
+
+/* ── Add-custom input bars ── */
+.rq-input-bar { display: flex; gap: 0.8rem; margin-top: 0.4rem; }
+.rq-input {
+  flex: 1; height: 40px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px; padding: 0 1.2rem; color: #e2e8f0; font-size: 0.78rem;
+  outline: none;
+  transition: border-color 0.2s; font-family: inherit;
+}
+.rq-input::placeholder { color: #556275; }
+.rq-theme-green .rq-input:focus { border-color: #34d399; }
+.rq-theme-yellow .rq-input:focus { border-color: #fbbf24; }
+.rq-theme-red .rq-input:focus { border-color: #f87171; }
+
+.rq-add-btn {
+  height: 40px; padding: 0 1.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+  color: #94a3b8; font-size: 0.72rem; font-weight: 700; letter-spacing: .3px;
+  cursor: pointer;
+  transition: all 0.2s; font-family: inherit;
+}
+.rq-theme-green .rq-add-btn:hover { border-color: #34d399; color: #34d399; }
+.rq-theme-yellow .rq-add-btn:hover { border-color: #fbbf24; color: #fbbf24; }
+.rq-theme-red .rq-add-btn:hover { border-color: #f87171; color: #f87171; }
+
+/* ── Footer ── */
+.rq-footer {
+  display: flex; justify-content: flex-end; align-items: center; gap: 1.8rem;
+  margin-top: 0.5rem; padding-top: 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative; z-index: 1;
+}
+.rq-reset-btn {
+  padding: 10px 22px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #94a3b8; font-size: 0.75rem;
+  font-weight: 700; letter-spacing: .3px; cursor: pointer;
+  transition: all 0.2s; font-family: inherit;
+}
+.rq-reset-btn:hover { background: rgba(255, 255, 255, 0.08); color: #f1f5f9; transform: translateY(-2px); }
+.rq-reset-btn:active { transform: translateY(0) scale(.97); }
+
+.rq-broadcast-btn {
+  height: 46px; padding: 0 22px;
+  background: linear-gradient(180deg, #2092e5, #146fb8);
+  border: 1px solid #4aa8ee; border-radius: 999px;
+  display: flex; align-items: center; gap: 9px;
+  cursor: pointer; user-select: none;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.rq-broadcast-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 8px 18px -4px rgba(32,146,229,0.6); }
+.rq-broadcast-btn:active { transform: translateY(0) scale(.97); transition-duration: .05s; }
+/* Real submit gating (see js/scraper_requests_ui.js's checkSubmit) —
+   previously this button had no disabled state at all since it didn't
+   do anything yet. */
+.rq-broadcast-btn:disabled,
+.rq-broadcast-btn.rq-disabled {
+  opacity: .45; cursor: not-allowed; filter: none; transform: none;
+  box-shadow: none;
+}
+.rq-broadcast-btn:disabled:hover,
+.rq-broadcast-btn.rq-disabled:hover { transform: none; filter: none; }
+.rq-broadcast-btn svg { stroke: #fff; flex-shrink: 0; }
+.rq-broadcast-btn span { font-size: 0.75rem; font-weight: 700; letter-spacing: .3px; color: #eaf5ff; }
+
+@media (max-width: 768px) {
+  .rq-grid { grid-template-columns: 1fr; }
+  .rq-full-width { grid-column: span 1; }
+  .rq-hub { padding: 1.4rem; }
+}

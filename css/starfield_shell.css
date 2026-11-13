@@ -1,0 +1,30 @@
+/* ─── Canvas ────────────────────────────────────────────────── */
+/* .solar-canvas wraps just the HOME page's own content now (blackhole,
+   header, planet row) — the starfield itself lives directly in <body>
+   as persistent SPA chrome, see html/shell.html, so it uses
+   position:fixed (viewport-relative) rather than depending on
+   .solar-canvas as a positioned ancestor. */
+.solar-canvas {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3.5vh, 31px);
+  padding: clamp(14px, 3.5vh, 34px) clamp(20px, 4vw, 34px);
+}
+
+#starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none; /* decorative only (aria-hidden) — without this,
+    its own stacking context (position:fixed + explicit z-index) paints
+    above any non-positioned in-flow content, e.g. .tab-body and every
+    button inside it, and silently intercepts every click on every
+    tab page even though it's visually transparent. */
+}
+

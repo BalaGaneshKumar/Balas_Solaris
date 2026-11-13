@@ -1,0 +1,87 @@
+.abyss-system {
+  position: relative;
+  width: 94px;
+  height: 94px;
+}
+
+.planet-neptune {
+  position: relative;
+  z-index: 1;
+  overflow: hidden; /* keeps the ping ripple clipped to the sphere */
+  transform: rotate(34deg); /* distinct tilt so it reads differently from Saturn/Mars */
+  background: #1a4d7a; /* fallback base tone; JS overrides with canvas texture */
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset -14px -9px 24px rgba(0,0,0,0.6),
+              0 0 19px rgba(40, 120, 200, 0.35);
+}
+.planet-neptune::after {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 8%, transparent 20%),
+    radial-gradient(circle at 50% 50%, transparent 46%, rgba(0,0,0,0.2) 68%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.72) 100%),
+    radial-gradient(circle at 75% 78%, rgba(0,0,0,0.42) 0%, transparent 40%);
+}
+
+/* Sonar ping — a ring that expands and fades where the probe is scanning */
+.sonar-ping {
+  position: absolute;
+  top: 42%;
+  left: 48%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  border: 1.4px solid rgba(200, 245, 255, 1);
+  background: radial-gradient(circle, rgba(180, 240, 255, 0.35) 0%, transparent 70%);
+  box-shadow: 0 0 7px 1.7px rgba(150, 230, 255, 0.85);
+  animation: sonar-ping 3s ease-out infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+.sonar-ping--delayed {
+  animation-delay: 1.5s;
+}
+@keyframes sonar-ping {
+  0%   { transform: scale(0.3); opacity: 1; }
+  60%  { opacity: 0.5; }
+  100% { transform: scale(8); opacity: 0; }
+}
+
+/* Realistic deep-probe design: a small metallic capsule body with a
+   downward scanning light and a short trailing antenna — not a satellite
+   with panels, more like a compact sonar/submersible drone. */
+.sonar-probe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 9px;
+  border-radius: 45% 45% 50% 50% / 55% 55% 45% 45%;
+  background: linear-gradient(160deg, #4a5a6a 0%, #2c3a48 45%, #14202c 100%);
+  border: 0.5px solid rgba(10, 15, 20, 0.7);
+  box-shadow: 0 0 2.5px 1.3px rgba(0, 0, 0, 0.55), 0 0 3.4px rgba(180, 220, 240, 0.4);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.sonar-light {
+  position: absolute;
+  bottom: -1.7px;
+  left: 50%;
+  width: 2.1px;
+  height: 2.1px;
+  margin-left: -1.05px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #eafcff, #7fd8f5 70%);
+  box-shadow: 0 0 4.3px 1.3px rgba(140, 225, 255, 0.85);
+}
+.sonar-light::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 0.5px;
+  height: 5px;
+  background: rgba(190, 235, 255, 0.5);
+  transform: translateX(-50%);
+}
+

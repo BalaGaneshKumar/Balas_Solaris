@@ -1,0 +1,36 @@
+/* ─── Planet row (home page layout only) ──────────────────────── */
+.planet-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(51px, 10vw, 94px);
+  flex-wrap: wrap;
+}
+
+.planet-row .planet-node:nth-child(1) { margin-bottom: clamp(20px, 5.5vh, 41px); }
+.planet-row .planet-node:nth-child(2) { margin-bottom: clamp(5px, 1.5vh, 10px); }
+.planet-row .planet-node:nth-child(3) { margin-bottom: clamp(5px, 1.5vh, 10px); }
+.planet-row .planet-node:nth-child(4) { margin-bottom: clamp(20px, 5.5vh, 41px); }
+
+.planet-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: transform var(--transition);
+}
+
+.planet-node:hover {
+  transform: translateY(-6px);
+}
+
+.planet-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  text-align: center;
+}

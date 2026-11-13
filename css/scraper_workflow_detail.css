@@ -1,0 +1,371 @@
+/* scraper_workflow_detail.css — Workflow Detail page
+   (fragments/scraper_workflow_detail.html), kept in its own file per
+   project convention.
+
+   Structure ported directly from the source dashboard's
+   build_wfd_css() (same wfd-* class names, same stage-chip/connector/
+   corner-svg pipeline layout, same packing math in the JS) — only the
+   palette changed, from source's white-card light theme to this app's
+   dark glass theme. Status colors reuse the exact tokens already
+   established in scraper_workflows_table_ui.css's .wt-status-* rules
+   (waiting #4aa8ee, in_progress #fbbf24, hold #fb923c, failed #f87171,
+   cancelled #8292a8, completed #4ade80) so a workflow's color means
+   the same thing whether you're looking at the Hyperlane table or its
+   detail page. */
+
+.wfd-page {
+  /* Matches .sa-wrap (Beacon/Hyperlane's own wrapper) and every other
+     tab's content width (.cv-wrap/.jo-wrap all use 1400px too) — this
+     was stuck at 1100px, noticeably narrower than the Scraper Abyss
+     page you'd have just come from, which is why there was visibly
+     more empty space on either side here than anywhere else in the
+     app. */
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #94a3b8;
+}
+
+/* Row 1: "Workflow Detail" (static) + id + status badge + "Portal
+   (code) · Type", all inline on the card's own first row — with Back
+   to Scraper Abyss on the right. Previously this "Workflow Detail"
+   title lived in a separate page-level bar above the card entirely;
+   it's now merged into the card's own top row per the latest layout. */
+.wfd-top-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.wfd-top-row-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+/* #wfd-details-header holds id-text + badge + portal-kind as three
+   concatenated <span>s with no whitespace between them in the JS
+   string build — without this, they packed together with zero gap at
+   all (not even a font-metric sliver), reading as one crowded, fused
+   block instead of three separate pieces of info. */
+#wfd-details-header { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wfd-static-title { font-size: 20px; font-weight: 700; color: #eef1fa; }
+.wfd-id-text { font-size: 16px; font-weight: 700; color: #eef1fa; }
+/* Portal/Type pills — reusing Job Odyssey's exact .jo-tag/.jo-src/
+   .jo-internal recipe (same colors, same pill shape) so "Adzuna" and
+   "Scraping" read as color-coded tags the way every other tag in this
+   app already does, instead of flat muted text. */
+.wfd-portal-tag, .wfd-type-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid; letter-spacing: .2px;
+}
+.wfd-portal-tag { background: rgba(245,166,35,0.18); color: #ffb84d; border-color: rgba(245,166,35,0.4); }
+.wfd-type-tag { background: rgba(74,184,255,0.18); color: #7fabff; border-color: rgba(74,184,255,0.4); }
+.wfd-back-link {
+  flex-shrink: 0;
+  color: #7cc4f7; text-decoration: none; font-size: 12.5px; font-weight: 700;
+  background: rgba(32,146,229,0.14); border: 1px solid rgba(32,146,229,0.4);
+  padding: 7px 16px; border-radius: 999px;
+  transition: background .15s ease;
+}
+.wfd-back-link:hover { background: rgba(32,146,229,0.22); }
+
+/* Row 2: Started/Updated (stacked pair) + locations (inline "name
+   (code)" list) on the left, Refresh/Auto-refresh (static markup,
+   defined in the html fragment, not JS-rendered) on the right. */
+.wfd-second-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; margin-bottom: 4px; }
+#wfd-details-meta { display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap; flex: 1 1 auto; min-width: 0; }
+.wfd-meta-time-pair { display: flex; gap: 24px; flex-shrink: 0; }
+.wfd-meta-time-pair-item { min-width: 0; }
+.wfd-meta-label { font-size: 12px; font-weight: 700; color: #eef1fa; }
+.wfd-meta-value { font-size: 12.5px; color: #c8ccdc; margin-top: 4px; }
+.wfd-meta-locations { min-width: 0; }
+.wfd-meta-inline-list { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 4px; }
+.wfd-inline-item { font-size: 12.5px; color: #c8ccdc; white-space: nowrap; }
+.wfd-meta-code { color: #6c7592; }
+.wfd-meta-empty { color: #6c7592; font-style: italic; }
+
+.wfd-refresh-controls { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+.wfd-refresh-btn {
+  display: flex; align-items: center; gap: 8px;
+  height: 34px; padding: 0 16px;
+  background: rgba(32,146,229,0.14); border: 1px solid rgba(32,146,229,0.4); border-radius: 999px;
+  color: #7cc4f7; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+.wfd-refresh-btn:hover { transform: translateY(-1px); background: rgba(32,146,229,0.22); }
+/* Spin just the icon, not the whole pill — .wfd-refresh-btn.wfd-
+   spinning used to animate the ENTIRE button (including the "Refresh"
+   text), which read as broken rather than as a loading state. Ported
+   from css/scraper_workflows_table_ui.css's .wt-refresh-btn.wt-
+   spinning svg, which already did this correctly. */
+.wfd-refresh-btn.wfd-spinning svg { animation: wfd-spin .7s linear infinite; }
+@keyframes wfd-spin { to { transform: rotate(360deg); } }
+
+/* Auto refresh toggle switch — ported from css/
+   scraper_workflows_table_ui.css's .wt-toggle/.wt-toggle-track/.wt-
+   toggle-thumb so this page's Auto refresh looks and behaves exactly
+   like Hyperlane's, instead of a plain checkbox+label. */
+.wfd-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.wfd-toggle input { display: none; }
+.wfd-toggle-track {
+  width: 34px; height: 18px; border-radius: 999px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14);
+  position: relative; transition: background .2s ease, border-color .2s ease;
+  flex-shrink: 0;
+}
+.wfd-toggle-thumb {
+  position: absolute; top: 1px; left: 1px; width: 14px; height: 14px; border-radius: 50%;
+  background: #9aa3bd; transition: transform .2s ease, background .2s ease;
+}
+.wfd-toggle input:checked + .wfd-toggle-track { background: rgba(32,146,229,0.35); border-color: #4aa8ee; }
+.wfd-toggle input:checked + .wfd-toggle-track .wfd-toggle-thumb { transform: translateX(16px); background: #4aa8ee; }
+.wfd-toggle-caption { font-size: 11.5px; font-weight: 600; color: #9aa3bd; }
+
+.wfd-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.wfd-section-title { font-size: 15px; font-weight: 700; color: #eef1fa; margin-bottom: 10px; }
+.wfd-pill {
+  font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+  background: rgba(32,146,229,0.18); color: #4aa8ee; margin-left: 6px;
+}
+
+/* ── Status badge (Details block header) ── */
+.wfd-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid; }
+.wfd-badge-waiting     { background: rgba(74,168,238,0.16);  color: #7cc4f7; border-color: rgba(74,168,238,0.4); }
+.wfd-badge-in_progress { background: rgba(251,191,36,0.16);  color: #fbbf24; border-color: rgba(251,191,36,0.4); }
+.wfd-badge-hold        { background: rgba(251,146,60,0.16);  color: #fb923c; border-color: rgba(251,146,60,0.4); }
+.wfd-badge-failed      { background: rgba(248,113,113,0.16); color: #f87171; border-color: rgba(248,113,113,0.4); }
+.wfd-badge-cancelled   { background: rgba(130,146,168,0.16); color: #8292a8; border-color: rgba(130,146,168,0.4); }
+.wfd-badge-completed   { background: rgba(74,222,128,0.16);  color: #4ade80; border-color: rgba(74,222,128,0.4); }
+
+/* Rows 3+4: "keywords" as its own centered section below the second
+   row, full width, with every keyword flowing through a CSS multi-
+   column list. column-width (not a fixed column-count) lets the
+   browser decide how many columns fit — matches the ~5-column look at
+   10 keywords in the reference without hardcoding 5, so it still
+   looks right with fewer or many more keywords, or a narrower card. */
+.wfd-keywords-section { margin-top: 18px; }
+.wfd-keywords-label { font-size: 12px; font-weight: 700; color: #eef1fa; text-align: center; margin-bottom: 10px; }
+.wfd-keywords-grid { column-width: 230px; column-gap: 24px; }
+.wfd-kw-item { font-size: 12.5px; color: #c8ccdc; break-inside: avoid; margin-bottom: 8px; }
+.wfd-meta-keyword-list { margin-top: 4px; }
+.wfd-meta-keyword-list.wfd-meta-two-col {
+  column-count: 2; column-gap: 24px; column-rule: 1px solid rgba(255,255,255,0.16);
+}
+.wfd-meta-keyword-list .wfd-meta-list-row { break-inside: avoid; }
+
+/* Action buttons — ported from Uiverse.io's button by adamgiebl
+   (the same author as the original reference link) — a solid
+   gradient pill with icon+label, soft drop shadow that tightens on
+   hover/active. Each action keeps its own established color as the
+   gradient instead of the reference's fixed green, same convention
+   as every earlier version of these buttons. */
+.wfd-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+.wfd-act-btn {
+  display: flex; align-items: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  cursor: pointer; font-weight: 600; font-size: 12px;
+  padding: .55em 1.1em .55em .85em;
+  color: #fff; border: none; border-radius: 20em;
+  letter-spacing: .03em;
+  transition: box-shadow .2s ease;
+}
+.wfd-act-btn svg { width: 15px; height: 15px; margin-right: 6px; }
+.wfd-act-btn:active { transform: scale(.96); }
+
+.wfd-act-retry {
+  background: linear-gradient(0deg, #1c6fb0 0%, #6cc3f5 100%);
+  box-shadow: 0 .7em 1.5em -.5em rgba(28,111,176,0.6);
+}
+.wfd-act-retry:hover { box-shadow: 0 .5em 1.5em -.5em rgba(28,111,176,0.6); }
+.wfd-act-retry:active { box-shadow: 0 .3em 1em -.5em rgba(28,111,176,0.6); }
+
+.wfd-act-hold {
+  background: linear-gradient(0deg, #a06a08 0%, #fbbf24 100%);
+  box-shadow: 0 .7em 1.5em -.5em rgba(160,106,8,0.6);
+}
+.wfd-act-hold:hover { box-shadow: 0 .5em 1.5em -.5em rgba(160,106,8,0.6); }
+.wfd-act-hold:active { box-shadow: 0 .3em 1em -.5em rgba(160,106,8,0.6); }
+
+.wfd-act-cancel {
+  background: linear-gradient(0deg, #962020 0%, #f28b8b 100%);
+  box-shadow: 0 .7em 1.5em -.5em rgba(150,32,32,0.6);
+}
+.wfd-act-cancel:hover { box-shadow: 0 .5em 1.5em -.5em rgba(150,32,32,0.6); }
+.wfd-act-cancel:active { box-shadow: 0 .3em 1em -.5em rgba(150,32,32,0.6); }
+
+/* Deliberately more intense than Cancel — this is the emergency-stop
+   action (loses in-progress stage progress), so it needs to read as a
+   step up in severity, not the same weight as a plain Cancel. */
+.wfd-act-revoke {
+  background: linear-gradient(0deg, #7f1d1d 0%, #ef4444 100%);
+  box-shadow: 0 .7em 1.6em -.5em rgba(127,29,29,0.75);
+}
+.wfd-act-revoke:hover { box-shadow: 0 .5em 1.6em -.5em rgba(127,29,29,0.75); }
+.wfd-act-revoke:active { box-shadow: 0 .3em 1.1em -.5em rgba(127,29,29,0.75); }
+
+.wfd-act-reset {
+  background: linear-gradient(0deg, #6e7484 0%, #c3c8d6 100%);
+  box-shadow: 0 .7em 1.5em -.5em rgba(110,116,132,0.6);
+}
+.wfd-act-reset:hover { box-shadow: 0 .5em 1.5em -.5em rgba(110,116,132,0.6); }
+.wfd-act-reset:active { box-shadow: 0 .3em 1em -.5em rgba(110,116,132,0.6); }
+
+.wfd-act-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.wfd-act-btn:disabled:hover { box-shadow: none; }
+.wfd-no-actions { color: #6c7592; font-size: 12px; }
+
+/* ── Stage pipeline — chamber/glass-tube/laser-pipe visual ──
+   Ported from the uploaded pipeline-dynamic.html reference: each
+   stage is a "chamber" (dark capsule) holding a neon-ring status
+   socket + a glass tube with the stage name/status, chambers join
+   via union caps to a laser-lit pipe-horizontal connector, and rows
+   that wrap join via a curved metal "ring-stack" tube instead of a
+   plain SVG stroke. Status colors reuse this file's own established
+   tokens (waiting #4aa8ee, in_progress #fbbf24, hold #fb923c, failed
+   #f87171, cancelled #8292a8, completed #4ade80) rather than the
+   reference's own literal neon palette, so color still means the
+   same thing here as on the badge above and the Hyperlane table. */
+#wfd-stages-block { overflow: hidden; }
+#wfd-stage-canvas { position: relative; padding: 20px 34px; box-sizing: border-box; overflow-x: hidden; overflow-y: visible; }
+
+.wfd-pipeline { display: flex; flex-direction: column; row-gap: 24px; position: relative; width: max-content; isolation: isolate; }
+.wfd-pipeline-row { display: flex; align-items: center; align-self: flex-start; }
+
+/* Chamber: the dark capsule holding one socket + one glass tube. */
+.wfd-chamber {
+  display: flex; align-items: center; height: 44px; width: max-content; flex-shrink: 0;
+  background: linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 20%,#000 50%,#0a0a0a 80%,#1a1a1a 100%);
+  border-radius: 24px; padding: 4px; position: relative; z-index: 2;
+  /* The last two layers are what separate the pill from the card behind
+     it: a thin pale rim, then a soft light halo. Without them the
+     near-black body and near-black card read as one shape at a glance. */
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.9), 0 5px 11px rgba(0,0,0,0.7),
+              0 0 0 1px rgba(170,190,225,0.42), 0 0 14px 1px rgba(120,150,215,0.32);
+}
+.wfd-chamber.wfd-dim { filter: brightness(0.6) saturate(0.6); }
+
+.wfd-node-socket {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; position: relative; z-index: 2;
+  background: linear-gradient(145deg,#4a4a4a 0%,#0a0a0a 45%,#5a5a5a 75%,#0a0a0a 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4);
+}
+.wfd-neon-ring {
+  width: 30px; height: 30px; border-radius: 50%; background: #06080a; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; position: relative;
+  box-shadow: 0 0 0 2px #1a202c, 0 0 0 3px #7a889b, 0 0 0 5px #797979, 0 0 11px rgba(0,0,0,0.8);
+}
+.wfd-neon-ring .wfd-icon { width: 14px; height: 14px; vertical-align: 0; }
+.wfd-neon-ring.wfd-icon-spin-wrap .wfd-icon-spin { animation: wfdRotate .9s linear infinite; }
+
+.wfd-neon-ring.completed   { border: 4px solid #4ade80; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030, 0 0 10px rgba(74,222,128,0.7); color: #4ade80; }
+.wfd-neon-ring.in_progress { border: 4px solid #fbbf24; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030, 0 0 10px rgba(251,191,36,0.7); color: #fbbf24; }
+.wfd-neon-ring.not_started { border: 4px solid #3a4350; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030; color: #6c7592; }
+.wfd-neon-ring.waiting     { border: 4px solid #4aa8ee; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030, 0 0 10px rgba(74,168,238,0.6); color: #7cc4f7; }
+.wfd-neon-ring.hold        { border: 4px solid #fb923c; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030, 0 0 10px rgba(251,146,60,0.6); color: #fb923c; }
+.wfd-neon-ring.failed      { border: 4px solid #f87171; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030, 0 0 10px rgba(248,113,113,0.7); color: #f87171; }
+.wfd-neon-ring.cancelled   { border: 4px solid #8292a8; box-shadow: 0 0 0 2px #000, 0 0 0 4px #303030; color: #8292a8; }
+
+/* Glass tube: the label/status pill welded to the socket, its
+   silhouette drawn by JS (wfdShapeTube) so it notches around the
+   ring with no seam. */
+.wfd-glass-tube { flex: 0 0 auto; height: 100%; padding: 0 14px; white-space: nowrap; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
+.wfd-tube-shape { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: visible; }
+.wfd-step-label-wrap { display: flex; flex-direction: column; line-height: 1.2; position: relative; z-index: 3; }
+.wfd-step-label { font-size: 13.12px; letter-spacing: .5px; text-transform: uppercase; color: #fff; font-weight: 700; white-space: nowrap; }
+.wfd-step-status { display: block; font-size: 8.8px; letter-spacing: 1.1px; font-weight: 600; opacity: .85; white-space: nowrap; }
+.wfd-step-status.completed { color: #4ade80; }
+.wfd-step-status.in_progress { color: #fbbf24; }
+.wfd-step-status.not_started { color: #6c7592; }
+.wfd-step-status.waiting { color: #7cc4f7; }
+.wfd-step-status.hold { color: #fb923c; }
+.wfd-step-status.failed { color: #f87171; }
+.wfd-step-status.cancelled { color: #8292a8; }
+
+/* Union caps — the notch that welds a chamber to its pipe-horizontal. */
+.wfd-union-cap, .wfd-union-cap-in {
+  width: 17px; height: 26px; position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  /* clip-path clips any shadow or border, so the edge highlight has to be
+     painted into the fill itself: lit top/bottom edges, dark core. */
+  background: linear-gradient(180deg,#333c48 0%,#181d24 22%,#07090d 50%,#181d24 78%,#333c48 100%);
+}
+.wfd-union-cap { right: -9px; clip-path: path('M0,0 C6.67,7 6.67,19 0,26 L17,26 L17,0 Z'); }
+.wfd-union-cap-in { left: -9px; clip-path: path('M17,0 C10.33,7 10.33,19 17,26 L0,26 L0,0 Z'); }
+
+/* Pipe-horizontal — the laser-lit connector between two chambers. */
+.wfd-pipe-horizontal { width: 110px; height: 52px; display: flex; align-items: center; position: relative; flex-shrink: 0; margin-left: -9px; margin-right: -9px; z-index: 1; }
+.wfd-conduit-shaft {
+  flex: 1; height: 24px; display: flex; align-items: center; position: relative; overflow: visible; z-index: 1;
+  background: linear-gradient(180deg,#3a4350 0%,#b8c6d8 14%,#fff 25%,#2a303c 50%,#141820 72%,#6a7889 90%,#232833 100%);
+  box-shadow: 0 -3px 6px rgba(0,0,0,0.7), 0 3px 6px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.wfd-laser-core { width: 100%; height: 7px; position: relative; }
+
+.wfd-pipe-completed .wfd-laser-core { background: #4ade80; box-shadow: 0 0 5px #4ade80, 0 0 12px rgba(74,222,128,0.5), 0 0 22px rgba(74,222,128,0.22), inset 0 0 3px rgba(255,255,255,0.7); }
+.wfd-pipe-completed .wfd-conduit-shaft { box-shadow: 0 0 10px rgba(74,222,128,0.16); }
+.wfd-pipe-in_progress .wfd-laser-core {
+  background: repeating-linear-gradient(90deg, #fbbf24 0px, #fff4be 12px, #fbbf24 24px, #06080a 24px, #06080a 36px);
+  background-size: 36px 100%; box-shadow: 0 0 5px rgba(251,191,36,0.85), 0 0 12px rgba(251,191,36,0.45), 0 0 22px rgba(251,191,36,0.2);
+  animation: wfdLaserFlow 1s linear infinite;
+}
+.wfd-pipe-in_progress.wfd-flow-rev .wfd-laser-core { animation-direction: reverse; }
+/* Forward (non-reversed rows: 1st, 3rd, 5th...) flows LEFT -> RIGHT, so the
+   pattern's background-position must INCREASE; .wfd-flow-rev (2nd, 4th...)
+   plays this same keyframe in reverse, so it flows RIGHT -> LEFT. */
+@keyframes wfdLaserFlow { 100% { background-position: 36px 0; } }
+.wfd-pipe-in_progress .wfd-conduit-shaft { box-shadow: 0 0 10px rgba(251,191,36,0.16); }
+.wfd-pipe-pending .wfd-laser-core { background: #090b0e; box-shadow: inset 0 0 4px rgba(0,0,0,0.95); }
+.wfd-pipe-failed .wfd-laser-core { background: #f87171; box-shadow: 0 0 5px #f87171, 0 0 12px rgba(248,113,113,0.5), 0 0 22px rgba(248,113,113,0.22), inset 0 0 3px rgba(255,255,255,0.7); }
+.wfd-pipe-failed .wfd-conduit-shaft { box-shadow: 0 0 10px rgba(248,113,113,0.16); }
+.wfd-pipe-hold .wfd-laser-core { background: #fb923c; box-shadow: 0 0 5px #fb923c, 0 0 12px rgba(251,146,60,0.5), 0 0 22px rgba(251,146,60,0.22), inset 0 0 3px rgba(255,255,255,0.7); }
+.wfd-pipe-hold .wfd-conduit-shaft { box-shadow: 0 0 10px rgba(251,146,60,0.16); }
+.wfd-pipe-cancelled .wfd-laser-core { background: #8292a8; box-shadow: 0 0 5px #8292a8, 0 0 12px rgba(130,146,168,0.5), 0 0 22px rgba(130,146,168,0.22), inset 0 0 3px rgba(255,255,255,0.7); }
+.wfd-pipe-cancelled .wfd-conduit-shaft { box-shadow: 0 0 10px rgba(130,146,168,0.16); }
+
+/* Corner tube — joins the last chamber of one row to the first of
+   the next, drawn as a stack of offset metallic stripes by
+   wfdBuildRingStack(), same geometry as .wfd-conduit-shaft's own
+   gradient so both read as the same physical pipe. */
+.wfd-corner-svg { position: absolute; overflow: visible; pointer-events: none; z-index: 0; }
+.wfd-corner-svg .wfd-ring-stack { filter: drop-shadow(0 0 5px rgba(0,0,0,0.65)); }
+.wfd-corner-svg .wfd-ring-stack path { fill: none; }
+.wfd-corner-core-base { fill: none; stroke-width: 7px; stroke: #06080a; }
+.wfd-corner-core { fill: none; stroke-width: 7px; stroke-linecap: butt; }
+.wfd-corner-pending .wfd-corner-core { stroke: #090b0e; }
+.wfd-corner-completed .wfd-corner-core { stroke: #4ade80; filter: drop-shadow(0 0 2px #4ade80) drop-shadow(0 0 5px rgba(74,222,128,0.55)) drop-shadow(0 0 9px rgba(74,222,128,0.3)); }
+.wfd-corner-in_progress .wfd-corner-core { stroke: #fbbf24; stroke-dasharray: 24 12; --o: 0px; stroke-dashoffset: var(--o); animation: wfdCornerDash 1s linear infinite; }
+/* In-progress glow lives on its own continuous path drawn UNDER the solid dark
+   base (see wfdDrawCorner), not on the dashes. A drop-shadow on the dashed
+   core bled yellow haze into the dark gaps, so they read as a whitish glow;
+   the straight pipe's glow is a box-shadow that only shows outside its body,
+   leaving the gaps pure black. This does the same: glow outside, gaps black. */
+.wfd-corner-glow { fill: none; stroke: #fbbf24; stroke-width: 7px; stroke-linecap: butt; filter: drop-shadow(0 0 2px #fbbf24) drop-shadow(0 0 5px rgba(251,191,36,0.5)) drop-shadow(0 0 9px rgba(251,191,36,0.28)); }
+/* The extra highlight layers (.wfd-corner-core-hl, built in wfdDrawCorner)
+   set their own stroke, dash pattern and --o inline; they share this
+   keyframe so every layer moves together, 36px per 1s — the same period
+   and speed as the straight pipe's .wfd-laser-core. The path always runs
+   stage-A -> stage-B, so the flow direction follows the stage order. */
+@keyframes wfdCornerDash { to { stroke-dashoffset: calc(var(--o) - 36px); } }
+.wfd-corner-failed .wfd-corner-core { stroke: #f87171; filter: drop-shadow(0 0 2px #f87171) drop-shadow(0 0 5px rgba(248,113,113,0.55)) drop-shadow(0 0 9px rgba(248,113,113,0.3)); }
+.wfd-corner-hold .wfd-corner-core { stroke: #fb923c; filter: drop-shadow(0 0 2px #fb923c) drop-shadow(0 0 5px rgba(251,146,60,0.55)) drop-shadow(0 0 9px rgba(251,146,60,0.3)); }
+.wfd-corner-cancelled .wfd-corner-core { stroke: #8292a8; filter: drop-shadow(0 0 2px #8292a8) drop-shadow(0 0 5px rgba(130,146,168,0.55)) drop-shadow(0 0 9px rgba(130,146,168,0.3)); }
+
+.wfd-legend { display: flex; gap: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 9px 16px; margin-top: 4px; font-size: 12px; flex-wrap: wrap; }
+.wfd-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.wfd-legend .wfd-icon { width: 14px; height: 14px; }
+
+/* ── Logs block ── */
+.wfd-log-search { width: 100%; padding: 9px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: #eef1fa; font-size: 13px; margin-bottom: 12px; }
+.wfd-log-search::placeholder { color: #6c7592; }
+.wfd-log-headers { display: grid; grid-template-columns: 150px 180px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10.5px; color: #6c7592; text-transform: uppercase; letter-spacing: .4px; }
+.wfd-log-row { display: grid; grid-template-columns: 150px 180px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #c8ccdc; }
+.wfd-log-empty { color: #6c7592; font-size: 13px; padding: 12px 0; }
+
+/* ── Status icon (svg, currentColor-driven) — matches the spinning-ring
+   convention used elsewhere in this app for in-progress states. ── */
+.wfd-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; vertical-align: -3px; flex-shrink: 0; }
+.wfd-icon-spin { animation: wfdRotate .9s linear infinite; }
+.wfd-icon-spin .wfd-trk { fill: none; stroke: currentColor; stroke-width: 2; opacity: .25; }
+.wfd-icon-spin .wfd-rng { fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 24 34; }
+@keyframes wfdRotate { 100% { transform: rotate(360deg); } }

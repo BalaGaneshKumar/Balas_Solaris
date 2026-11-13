@@ -1,0 +1,73 @@
+/* Job Odyssey — Saturn, axial tilt 26.73deg, equatorial bulge from rapid spin */
+
+/* Wraps the planet + both ring halves so the ring can render both behind
+   and in front of the sphere (classic Saturn-ring illusion). */
+.saturn-system {
+  position: relative;
+  width: 99px;
+  height: 85px;
+}
+
+.planet-saturn {
+  position: relative;
+  z-index: 1;
+  width: 99px;
+  height: 85px;
+  border-radius: 50%;
+  background: #c9a876; /* fallback base tone; JS overrides with canvas texture */
+  background-size: cover;
+  background-position: center;
+  transform: scaleX(-1) rotate(-26.73deg);
+  filter: blur(0.3px);
+}
+.planet-saturn::before {
+  background:
+    radial-gradient(ellipse 60px 43px at 50% 50%, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%);
+  opacity: 0.6;
+}
+.planet-saturn::after {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 8%, transparent 20%),
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,0.2) 68%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.7) 100%),
+    radial-gradient(circle at 75% 78%, rgba(0,0,0,0.4) 0%, transparent 40%);
+}
+
+.planet-ring-back,
+.planet-ring-front {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 167px;
+  height: 43px;
+  transform: translate(-50%, -50%) scaleX(-1) rotate(-26.73deg);
+  pointer-events: none;
+  overflow: hidden;
+}
+.ring-squash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 167px;
+  height: 167px;
+  margin: -83.5px 0 0 -83.5px;
+  transform: scaleY(0.2551); /* 50/196 — squashes the circle down to the ellipse (ratio unchanged by the uniform 0.85 scale) */
+}
+.ring-spin {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 100% 100%;
+  animation: spin-axis 16s linear infinite reverse;
+}
+.planet-ring-back {
+  z-index: 0;
+  /* top half = far side of the ring, passes behind the sphere */
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+.planet-ring-front {
+  z-index: 2;
+  /* bottom half = near side, passes in front of the sphere */
+  clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
