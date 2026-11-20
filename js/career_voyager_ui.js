@@ -4,8 +4,8 @@
    by tab.html's Jinja conditionals when current_key == 'career-voyager'.
 
    Applications and Job Sites are persisted through SQLite (py/career_api.py
-   -> db/career.db), using the SAME mechanism as the desktop dashboard's
-   career_tracker.py + dashboard_server.py, per an explicit request to
+   -> db/career.db), using the SAME mechanism as the earlier desktop
+   dashboard, per an explicit request to
    match that exactly:
      - ONE combined load on init:  GET  /career-load -> {apps, sites}
      - ONE combined save on every add/edit/delete: POST /career-save
@@ -761,7 +761,7 @@
     });
     groups.forEach(function (g) {
       // No stable ids anymore — tie-break by array position in cvApps,
-      // same as dashboard_career.py's crApps.indexOf() pattern.
+      // same as the earlier dashboard's crApps.indexOf() pattern.
       g.rows = groupMap[g.key].slice().sort(function (a, b) {
         var da = a.date || '', db = b.date || '';
         if (da !== db) return da > db ? 1 : -1;

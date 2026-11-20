@@ -1,6 +1,6 @@
 /* ─── Reduced motion ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .sun-icon, .blackhole-disk, .planet-orb::before { animation: none; }
+  .blackhole-disk, .planet-orb::before { animation: none; }
   .text-anim { animation: none; opacity: 1; }
 }
 

@@ -1,6 +1,6 @@
 /* ---- Profile Nexus ---- */
-/* solaris-nexus.js — Profile Nexus surface, mapped from a real icy/rocky
-   dwarf-planet-style texture (2k_nexus.jpg). Pushed toward maximum
+/* nexus.js — Profile Nexus surface, mapped from a real icy/rocky
+   dwarf-planet-style texture (2k_nexus.webp). Pushed toward maximum
    roughness and a cold silver tint per request — heavier grit noise and
    contrast than Mars/Saturn. Same mirrored-tile scroll technique.
 

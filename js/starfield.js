@@ -1,6 +1,6 @@
 /* ---- Starfield ---- */
-/* solaris.js — Starfield background only.
-   Planets self-rotate via CSS (see solaris.css), no JS orbit logic needed. */
+/* starfield.js — Starfield background only.
+   Planets self-rotate via CSS (see the planet files in css/), no JS orbit logic needed. */
 
 (function () {
   'use strict';

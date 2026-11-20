@@ -83,7 +83,7 @@ body[data-page-key="career-voyager"] {
 .cv-tab.cv-active-cyan .cv-tab-icon { stroke: #38bdf8; }
 
 /* ── Log button (fills the shared .log-btn placeholder) ──
-   Reverted to the original SVG document-icon design (career_voyager_v23.html
+   Reverted to the original SVG document-icon design (the earlier Career Voyager
    preview), per explicit request — not the folded-doc/dots icon used
    on Profile Nexus. */
 .tab-body[data-current-planet="career-voyager"] .log-btn {
@@ -134,7 +134,7 @@ body[data-page-key="career-voyager"] {
 }
 .cv-wrap { max-width: 1400px; margin: 0 auto; }
 
-/* ── Stats — ported from career_voyager_v23.html, values now computed
+/* ── Stats — ported from the earlier Career Voyager preview, values now computed
    live from cvApps in career_voyager_ui.js (see cvUpdateStats). Only
    plain counts + icons are kept — sparkline/bar-chart/donut visuals
    were removed. ── */
@@ -163,7 +163,6 @@ body[data-page-key="career-voyager"] {
 .cv-stat.cv-orange .cv-num, .cv-stat.cv-orange .cv-stat-icon { color: var(--cv-orange); }
 .cv-stat.cv-blue .cv-num, .cv-stat.cv-blue .cv-stat-icon { color: var(--cv-blue); }
 .cv-stat.cv-purple .cv-num, .cv-stat.cv-purple .cv-stat-icon { color: var(--cv-purple); }
-.cv-stat.cv-green .cv-num, .cv-stat.cv-green .cv-stat-icon { color: var(--cv-green); }
 .cv-stat.cv-red .cv-num, .cv-stat.cv-red .cv-stat-icon { color: var(--cv-red); }
 .cv-stat.cv-gray .cv-num, .cv-stat.cv-gray .cv-stat-icon { color: var(--cv-gray); }
 .cv-stat.cv-offer {
@@ -204,10 +203,6 @@ body[data-page-key="career-voyager"] {
   color: var(--cv-text); padding: 9px 14px; border-radius: 10px; font-size: 12.5px; outline: none;
 }
 .cv-search:focus { border-color: var(--cv-blue); }
-.cv-select {
-  background: rgba(255,255,255,0.06); border: 1px solid var(--cv-border);
-  color: var(--cv-text-dim); padding: 9px 12px; border-radius: 10px; font-size: 12.5px; cursor: pointer; outline: none;
-}
 
 /* ── Custom dropdowns (stage filter / sort) ──────────────────────
    These used to be native <select> elements (still are, but now for

@@ -1,6 +1,6 @@
 """
 py/adzuna.py — live Adzuna API client (renamed from the source project's
-real_adzuna.py — same content, this project just doesn't keep a
+earlier live client — same content, this project just doesn't keep a
 separate mock module alongside it, so the plain "adzuna" name is
 unambiguous here).
 

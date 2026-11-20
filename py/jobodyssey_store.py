@@ -28,12 +28,6 @@ _ROOT = os.path.dirname(BASE_DIR)                       # py/ -> project root
 DB_DIR = os.path.join(_ROOT, 'db')                      # matches career_api.py's convention
 JOBS_DB = os.path.join(DB_DIR, 'jobodyssey.db')
 
-JOB_COLUMNS = [
-    'id', 'portal', 'raw_id', 'title', 'company', 'location', 'link',
-    'description', 'posted_date', 'keyword', 'search_location',
-    'status', 'validation', 'created_at', 'updated_at'
-]
-
 VALID_STATUSES = ('scraped', 'eligible', 'hold', 'ineligible', 'blacklist', 'applied')
 
 
@@ -324,27 +318,6 @@ def get_jobs_needing_description(portal):
         return rows
     except Exception as e:
         log_event('JobOdyssey', 'Get jobs needing description error: ' + str(e)[:80])
-        return []
-
-
-def get_description_locations(portal):
-    """Distinct locations among jobs still needing a full description —
-    used to build one Descriptor stage per location."""
-    try:
-        conn = _get_conn()
-        _ensure_schema(conn)
-        cur = conn.execute(
-            "SELECT DISTINCT search_location FROM jobs WHERE portal = ? "
-            "AND (description_full = 0 OR description_full IS NULL) "
-            "AND (link_type != 'external' OR link_type IS NULL) AND status != 'ineligible' "
-            "AND search_location IS NOT NULL",
-            (portal,)
-        )
-        locs = [r[0] for r in cur.fetchall()]
-        conn.close()
-        return locs
-    except Exception as e:
-        log_event('JobOdyssey', 'Get description locations error: ' + str(e)[:80])
         return []
 
 

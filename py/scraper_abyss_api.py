@@ -3,7 +3,7 @@ py/scraper_abyss_api.py — Flask blueprint for the Scraper Abyss tab
 (Beacon + Hyperlane + workflow detail).
 
 Mechanism ported directly from the source dashboard's
-dashboard_server.py routes (per your instruction to match that
+server routes (per your instruction to match that
 exactly), same as py/career_api.py did for Career Voyager. This file
 is a thin HTTP wrapper — all business logic stays in
 py/workflow_store.py and py/workflow_engine.py, this just calls them

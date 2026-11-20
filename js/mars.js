@@ -1,7 +1,7 @@
 /* ---- Career Voyager (Mars) ---- */
-/* solaris-mars.js — Career Voyager surface, mapped from a real Mars-style
-   texture (2k_mars.jpg). Same mirrored ("ping-pong") tile + scroll
-   technique as solaris-saturn.js, no ring/tilt needed for this planet.
+/* mars.js — Career Voyager surface, mapped from a real Mars-style
+   texture (2k_mars.webp). Same mirrored ("ping-pong") tile + scroll
+   technique as saturn.js, no ring/tilt needed for this planet.
 
    Tracks its own two requestAnimationFrame loops (satellite orbit +
    surface scroll) at module scope and cancels the previous ones before

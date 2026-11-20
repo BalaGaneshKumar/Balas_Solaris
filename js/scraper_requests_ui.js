@@ -59,10 +59,6 @@
     'rq-blacklist-chambers': ['Senior', 'Lead', 'Principal', 'Staff', 'Manager', 'Walk In']
   };
 
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
   function makeChamber(label, removable) {
     var chamber = document.createElement('div');
     chamber.className = 'rq-chamber';

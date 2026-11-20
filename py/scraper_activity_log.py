@@ -1,7 +1,7 @@
 """
 py/scraper_activity_log.py — Scraper Abyss Activity Log.
 
-Ported from the source dashboard's dashboard_log.py, scoped down to
+Ported from the source dashboard's log module, scoped down to
 just this one tab (the source kept one dict of buckets across several
 tabs — 'career'/'profile' — but every OTHER tab in this project already
 keeps its own Activity Log independently in-memory/client-side, so a

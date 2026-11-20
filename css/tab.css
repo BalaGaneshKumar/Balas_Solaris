@@ -158,13 +158,6 @@
   padding: 32px;
 }
 
-.tab-placeholder-text {
-  font-size: 18px;
-  color: #cbd5e1;
-  max-width: 640px;
-  margin: 0;
-}
-
 /* ── Scroll buttons ────────────────────────────────────────────────
    .scroll-nav: one circular down-arrow beside the Log button in the shared
    header (vertically centred on the Log button's visual, same right-hand

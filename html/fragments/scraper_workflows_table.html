@@ -31,7 +31,7 @@
   and `stage` is already the computed "current stage" label — so this
   template reads fields directly instead of calling the old
   scraper_table_status()/scraper_current_stage() jinja globals, which
-  were removed along with py/scraper_store.py (see solaris.py).
+  no longer exist (see solaris.py).
 #}
 {% macro sa_workflows_table(workflows) %}
 

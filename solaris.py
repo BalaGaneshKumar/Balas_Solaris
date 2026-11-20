@@ -9,7 +9,6 @@ Project layout:
         fragments/
             home.html            home page's swappable content
             tab.html              shared Jinja template for the 4 tab pages
-        transition.html         reference doc only, not a live route
     css/  (see FILE_LOCATIONS below for the full list — each concern its
            own small file: base, planet_base, blackhole, sun,
            starfield_shell, planet_row, saturn, mars, abyss, nexus,
@@ -17,10 +16,8 @@ Project layout:
     js/   (shared, sun, saturn, mars, abyss, nexus, starfield, blackhole,
            tab, transition, router — same one-concern-per-file split)
     py/
-        transition.py            currently unused by this app (kept for a
-                                  possible future standalone tab server)
     Assets/
-        jpg/..., png/...
+        png/..., webp/...
 
 SPA routing: every route below can be requested two ways —
   1. A normal browser navigation (typed URL, refresh, bookmark, or any
@@ -46,7 +43,6 @@ _ROOT = os.path.dirname(os.path.abspath(__file__))
 HTML_DIR = os.path.join(_ROOT, "html")
 CSS_DIR = os.path.join(_ROOT, "css")
 JS_DIR = os.path.join(_ROOT, "js")
-ASSETS_DIR = os.path.join(_ROOT, "Assets")
 # Scraper Abyss's real data layer — JSON workflow/temp files live under
 # data/, per-workflow log files live under logs/ (both top-level,
 # siblings of html/css/js/db — see py/workflow_store.py's own docstring
@@ -61,8 +57,7 @@ app = Flask(__name__, template_folder=HTML_DIR)
 # started_at/updated_at are already computed, final-display values —
 # no per-field remap macro needed the way the old mock data required
 # scraper_table_status()/scraper_current_stage() jinja globals; those
-# were removed along with py/scraper_store.py, which is no longer used
-# anywhere in this app).
+# are gone — the old mock-data module no longer exists).
 
 BASE = "/solaris"
 ROUTER_HEADER = "X-Solaris-Router"
@@ -373,11 +368,11 @@ def static_files(filename):
     if filename in FILE_LOCATIONS:
         return send_from_directory(FILE_LOCATIONS[filename], filename)
 
-    if filename.startswith("Assets/jpg/") or filename.startswith("Assets/png/") or filename.startswith("Assets/webp/"):
+    if filename.startswith("Assets/png/") or filename.startswith("Assets/webp/"):
         # Guard against path traversal without mangling separators — on
         # Windows, os.path.normpath() would convert to backslashes, which
         # send_from_directory does NOT treat as a path separator (it looks
-        # for a literal "Assets\jpg\x.jpg" filename and 404s). Keep the
+        # for a literal "Assets\webp\x.webp" filename and 404s). Keep the
         # forward-slash form for Flask; only use an OS-native join for the
         # local existence check.
         parts = filename.split("/")
@@ -407,11 +402,9 @@ app.register_blueprint(scraper_abyss_api_bp, url_prefix=BASE + "/api")
 from py.export_api import export_api_bp
 app.register_blueprint(export_api_bp, url_prefix=BASE + "/api")
 
-# NOTE: py/transition.py is not registered here — the transition system's
-# actual logic lives in js/transition.js (a plain static file served via
-# FILE_LOCATIONS above), not a Flask Blueprint. py/transition.py is kept
-# only as a template for a possible future standalone tab-page server;
-# see its own docstring.
+# NOTE: no Python Blueprint handles page transitions — the transition
+# system's actual logic lives in js/transition.js (a plain static file
+# served via FILE_LOCATIONS above).
 
 
 # ── Nothing runs or answers while Solaris is powered off ──────────

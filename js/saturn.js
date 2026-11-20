@@ -1,6 +1,6 @@
 /* ---- Job Odyssey (Saturn) ---- */
-/* solaris-saturn.js — Saturn surface + ring, mapped from real texture
-   images (2k_saturn.jpg, 2k_saturn_ring_alpha.png). The surface is built
+/* saturn.js — Saturn surface + ring, mapped from real texture
+   images (2k_saturn.webp, 2k_saturn_ring_alpha.png). The surface is built
    as a mirrored ("ping-pong") tile so it can scroll/spin with no visible
    seam; the ring samples the real ring image radially for banding. */
 (function () {

@@ -1,6 +1,6 @@
 """
 py/jsearch.py — live JSearch (RapidAPI) client (renamed from the source
-project's real_jsearch.py, matching py/adzuna.py's same renaming —
+project's earlier live client, matching py/adzuna.py's same renaming —
 this project doesn't keep a separate mock module alongside it).
 
 Confirmed live against the /search-v2 endpoint during testing — the
@@ -58,7 +58,6 @@ def real_search(query, country='in', cursor=None):
     if cursor:
         params['cursor'] = cursor
 
-    last_error = None
     delay = RETRY_DELAY_SECONDS
     timeout_retries_used = 0
     attempt = 1
@@ -78,7 +77,6 @@ def real_search(query, country='in', cursor=None):
                 data['_quota'] = {'limit': limit, 'remaining': remaining}
             return data
         except requests.exceptions.Timeout as e:
-            last_error = e
             if timeout_retries_used < MAX_TIMEOUT_RETRIES:
                 timeout_retries_used += 1
                 continue  # one immediate retry, same 59s timeout, no backoff delay
@@ -86,7 +84,6 @@ def real_search(query, country='in', cursor=None):
                                 's (retried once, still no response): ' + _redact(str(e)))
         except requests.exceptions.HTTPError as e:
             status = e.response.status_code if e.response is not None else None
-            last_error = e
             if status == 429:
                 raise JSearchQuotaExceeded(
                     'JSearch monthly quota exceeded (HTTP 429 Too Many Requests): ' + _redact(str(e))

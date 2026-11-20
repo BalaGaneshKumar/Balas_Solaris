@@ -13,7 +13,7 @@
    so it's a no-op on the other tab pages.
 
    Save/load wired to real server endpoints — same mechanism as the
-   desktop dashboard's dashboard_profile.py (saveProfile() -> POST
+   earlier desktop dashboard's profile save (saveProfile() -> POST
    /api/save-profile), adapted to this project's route prefix:
      GET  /solaris/api/profile-data   -> current saved profile (or {})
      POST /solaris/api/save-profile   -> body is the full profile object,

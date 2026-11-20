@@ -1,6 +1,6 @@
 """
 py/jobspipe.py — live JobsPipe API client (renamed from the source
-project's real_jobspipe.py, matching py/adzuna.py's/py/jsearch.py's
+project's earlier live client, matching py/adzuna.py's/py/jsearch.py's
 same renaming).
 
 Confirmed live via direct testing (10/10 real jobs returned full,
@@ -21,7 +21,6 @@ Transient 5xx errors are retried with backoff, same pattern as the
 other client files. A timeout is retried once (see _post). 4xx errors are not retried.
 """
 
-import re
 import time
 import requests
 from py.jobspipe_config import JOBSPIPE_API_KEY

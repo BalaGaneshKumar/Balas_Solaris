@@ -14,7 +14,7 @@ Registered in solaris.py the same way career_api_bp/profile_api_bp are:
     app.register_blueprint(jobodyssey_api_bp, url_prefix=BASE + "/api")
 
 Routes (relative to that prefix, so BASE + "/api" + the paths below) —
-mirrors the original dashboard_server.py's two-endpoint mechanism:
+mirrors the original dashboard's two-endpoint mechanism:
 
     GET  /jobodyssey-load
         Query params (all optional): status, portal, location, search,

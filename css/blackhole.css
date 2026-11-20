@@ -43,8 +43,3 @@
   50%       { filter: brightness(2.1) drop-shadow(0 0 14px rgba(200,170,255,0.85)); }
 }
 
-@keyframes bh-spin {
-  from { transform: rotateX(62deg) rotateZ(0deg); }
-  to   { transform: rotateX(62deg) rotateZ(360deg); }
-}
-

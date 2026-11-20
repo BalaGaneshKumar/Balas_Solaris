@@ -37,7 +37,7 @@
     });
   }
 
-  // Same markup solaris.html uses for each planet, just without the
+  // Same markup home.html uses for each planet, just without the
   // outer <a>/label wrapper (the cluster node itself is the link).
   var PLANET_MARKUP = {
     'sun':

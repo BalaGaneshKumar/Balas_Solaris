@@ -45,8 +45,6 @@ _counter_lock = threading.Lock()
 
 PORTAL_CODES = {'Adzuna': 'AD', 'JSearch': 'JS', 'JobsPipe': 'JP'}
 
-STATUS_ORDER = ['scraped', 'eligible', 'hold', 'ineligible', 'blacklist', 'applied']
-
 # ---------------------------------------------------------------------------
 # Workflow ID generation — WFI + SCR + portal + AAA..ZZZ + 0000..9999,
 # independent counter per portal, rolling AAA9999 -> AAB0000.

@@ -1,5 +1,5 @@
 /* ---- Black hole power button ---- */
-/* solaris-blackhole.js — clicking the black-hole power button pulls the
+/* blackhole.js — clicking the black-hole power button pulls the
    sun, all planets, and the starfield into it, then shuts the server down.
 
    Before any of that plays, checks /solaris/shutdown-check — if a

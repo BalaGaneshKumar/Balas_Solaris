@@ -23,7 +23,7 @@
 /* Voyager-style probe: a big gold dish antenna is the dominant shape,
    with a small bus below it and thin diagonal boom arms — not an
    ISS-style satellite with blue solar-panel wings. Position/z-index are
-   set by solaris-mars.js each frame (tilted-ellipse orbit + front/behind
+   set by mars.js each frame (tilted-ellipse orbit + front/behind
    toggle), not CSS animation. */
 .voyager-sat {
   position: absolute;

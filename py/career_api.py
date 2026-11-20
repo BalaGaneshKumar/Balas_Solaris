@@ -2,8 +2,8 @@
 py/career_api.py — Flask blueprint for the Career Voyager tab's
 save/load endpoints.
 
-Mechanism ported directly from the desktop dashboard's career_tracker.py
-+ dashboard_server.py (per your instruction to match that exactly),
+Mechanism ported directly from the earlier desktop dashboard
+(per your instruction to match that exactly),
 replacing this project's previous per-row REST API (GET/POST/PUT/DELETE
 on /apps/:id and /sites/:id). The new mechanism:
 
@@ -13,7 +13,7 @@ on /apps/:id and /sites/:id). The new mechanism:
                         the arrays given, every single call. No per-row
                         ids are used by the frontend at all — array
                         position is the only identity (same as
-                        dashboard_career.py's crApps/crSites arrays).
+                        the earlier dashboard's crApps/crSites arrays).
 
 Registered in solaris.py the same way profile_api_bp is:
     from py.career_api import career_api_bp

@@ -133,7 +133,6 @@ body[data-page-key="job-odyssey"] {
 .jo-dd-opt:hover { background: rgba(232,185,35,0.12); color: #fff; }
 .jo-dd-opt.jo-dd-selected { background: rgba(232,185,35,0.18); color: #e8b923; }
 .jo-dd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.jo-dd-dot.jo-dd-dashed { background: transparent; border: 1.5px dashed #e8b923; }
 
 .jo-search-wrap {
   flex: 1;
@@ -314,7 +313,6 @@ body[data-page-key="job-odyssey"] {
 .jo-stat.jo-brown .jo-num, .jo-stat.jo-brown .jo-stat-icon { color: #c99270; }
 .jo-stat.jo-green .jo-num, .jo-stat.jo-green .jo-stat-icon { color: #4fe3a1; }
 .jo-stat.jo-orange .jo-num, .jo-stat.jo-orange .jo-stat-icon { color: #ff9d42; }
-.jo-stat.jo-gold .jo-num, .jo-stat.jo-gold .jo-stat-icon { color: #e8b923; }
 
 @media (max-width: 1100px) {
   .jo-stats { flex-wrap: wrap; }

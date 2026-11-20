@@ -26,11 +26,6 @@
   mask-image: radial-gradient(circle, black 70%, transparent 90%);
 }
 
-@keyframes sun-rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
 .sun-orb::before {
   content: "";
   position: absolute;

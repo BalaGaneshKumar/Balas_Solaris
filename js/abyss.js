@@ -1,8 +1,8 @@
 /* ---- Scraper Abyss ---- */
-/* solaris-abyss.js — Scraper Abyss surface, mapped from a swirling blue
-   marble/ocean texture (scraper_abyss_texture.jpg). Same mirrored
-   ("ping-pong") tile + scroll technique as solaris-saturn.js /
-   solaris-mars.js. No poles to avoid here since it's abstract swirl art,
+/* abyss.js — Scraper Abyss surface, mapped from a swirling blue
+   marble/ocean texture (scraper_abyss_texture.webp). Same mirrored
+   ("ping-pong") tile + scroll technique as saturn.js /
+   mars.js. No poles to avoid here since it's abstract swirl art,
    not a real planet map, so the crop can just be a straightforward slice.
 
    Tracks its own two requestAnimationFrame loops (sonar probe orbit +

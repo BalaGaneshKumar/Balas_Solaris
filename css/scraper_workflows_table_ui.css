@@ -14,7 +14,7 @@
    section elsewhere in the app — a translucent background color
    alone, with no blur, just looks flatly see-through against the
    starfield rather than like soft frosted glass. Colors/spacing
-   throughout match the rest of Scraper Abyss (.sa-panel, .rq-*)
+   throughout match the rest of Scraper Abyss (#sa-panel-*, .rq-*)
    rather than the heavier chrome look from the reference this was
    adapted from. */
 

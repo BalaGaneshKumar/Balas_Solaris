@@ -37,7 +37,7 @@
 }
 
 /* A simple "Back to Solaris" button style, for tab pages to reuse —
-   see transition.html for the markup this pairs with. */
+   see js/transition.js for the markup this pairs with. */
 .solaris-return-btn {
   position: fixed;
   top: 16px;

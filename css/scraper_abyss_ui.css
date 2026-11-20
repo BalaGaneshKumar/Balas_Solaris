@@ -138,26 +138,9 @@ body[data-page-key="scraper-abyss"] {
 }
 .sa-wrap { max-width: 1400px; margin: 0 auto; }
 
-/* ── Panel (Requests / Workflows) — same bordered-card structure as
-   Career Voyager's .cv-panel/.cv-panel-header/.cv-panel-title/
-   .cv-panel-desc/.cv-pill, recolored to this tab's blue. Only one
-   .sa-panel is visible at a time, toggled by the Beacon/Hyperlane pill
-   row (see js/scraper_abyss_ui.js). No dashboard exists yet for this
-   tab, so the "Coming soon" pill sits in the exact slot Career's count
-   badge (e.g. "398") occupies once there's real data to count. ── */
-.sa-panel {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(16px) saturate(130%);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 20px;
-}
-.sa-panel-header { margin: 0; }
-.sa-panel-title { font-size: 16px; font-weight: 700; color: #eef1fa; display: flex; align-items: center; gap: 8px; font-family: 'Segoe UI', system-ui, sans-serif; }
-.sa-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(32,146,229,0.18); color: #4aa8ee; }
-.sa-panel-desc { font-size: 12px; color: #9aa3bd; margin-top: 4px; max-width: 640px; line-height: 1.5; font-family: 'Segoe UI', system-ui, sans-serif; }
-.sa-pill-count { background: rgba(32,146,229,0.18); color: #4aa8ee; }
+/* ── Panels (Requests / Workflows) — only one panel (#sa-panel-beacon or
+   #sa-panel-hyperlane) is visible at a time, toggled by the Beacon/Hyperlane
+   pill row (see js/scraper_abyss_ui.js). ── */
 
 /* ── Activity log panel (toggled open by the log button) ── */
 .sa-log-panel {
