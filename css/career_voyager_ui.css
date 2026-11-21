@@ -250,6 +250,9 @@ body[data-page-key="career-voyager"] {
   z-index: 30;
 }
 .cv-dd.cv-dd-open .cv-dd-panel { display: block; }
+/* FIX (drop-down fix, separate from the clean-up): the "All stages" drop-down only.
+   Wide enough for the Match Any / Match None row, and no scroll bar: all options always show. */
+#cv-dd-stage .cv-dd-panel { width: max-content; max-height: none; overflow: visible; }
 .cv-dd-opt {
   padding: 8px 10px;
   border-radius: 7px;
