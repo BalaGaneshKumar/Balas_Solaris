@@ -12,6 +12,15 @@ A personal job-search command center, themed as a solar system. Pull jobs from j
 | 2 | [Job-Hunter-Agent-Phase-2](https://github.com/BalaGaneshKumar/Job-Hunter-Agent-Phase-2) | A rebuild on job-board APIs (Adzuna, JSearch, JobsPipe) and SQLite storage | Completed |
 | 3 | This repo | Bala's Solaris: a single-page Flask application, version 1.0.0 as the baseline | In progress |
 
+## The Legend of Solaris
+
+Bala's Solaris also has a story. *The Legend of Solaris* is a fictional illustrated story across four series (eight books) about Bala's Solaris, shown as page-turning books on a web page.
+
+- Read it online: [balaganeshkumar.github.io/legend-of-solaris](https://balaganeshkumar.github.io/legend-of-solaris/)
+- Its repo: [BalaGaneshKumar/legend-of-solaris](https://github.com/BalaGaneshKumar/legend-of-solaris)
+
+The story is a separate project with its own licence (CC BY-NC-ND 4.0), and its illustrations are AI-generated. It is not part of this app, and the app does not need it.
+
 ## What it does
 
 The home screen shows a sun on a starfield. Clicking the sun powers the app on, and each feature is a planet you navigate to from there. Every screen is swapped into one persistent page, so navigating never reloads it.
